@@ -1,0 +1,1 @@
+# dotnetConf2024.ttss.version
