@@ -1,11 +1,16 @@
-﻿using Microsoft.SemanticKernel.ChatCompletion;
-using Microsoft.SemanticKernel.Connectors.OpenAI;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.ChatCompletion;
 
-// สร้างอินสแตนซ์ของบริการแชท OpenAI Platform โดยใช้โมเดล gpt-4o-mini และคีย์ API
-IChatCompletionService chatService = new OpenAIChatCompletionService(
+ServiceCollection services = new ServiceCollection();
+services.AddOpenAIChatCompletion(
     modelId: "gpt-4o-mini",
     apiKey: "key"
-    );
+);
+IServiceProvider serviceProvider = services.BuildServiceProvider();
 
-// แสดงผลลัพธ์ของการถามคำถามในคอนโซล
-Console.WriteLine(await chatService.GetChatMessageContentAsync("ท้องฟ้าสีอะไร"));
+IChatCompletionService chatService = serviceProvider.GetRequiredService<IChatCompletionService>();
+ChatHistory chatHistory = new ChatHistory();
+chatHistory.AddUserMessage("ท้องฟ้าสีอะไร");
+
+Console.WriteLine(await chatService.GetChatMessageContentAsync(chatHistory));

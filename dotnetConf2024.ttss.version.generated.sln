@@ -7,6 +7,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{530F2EFE-AFC
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "1.get.started.ai.dotnet", "src\1.get.started.ai.dotnet\1.get.started.ai.dotnet.csproj", "{E0378B3A-D3D0-4D4B-9089-487588915E22}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "1.get.started.ai.dotnet.advance", "src\1.get.started.ai.dotnet.advance\1.get.started.ai.dotnet.advance.csproj", "{D2A2E26E-CF43-4FF9-865E-9747B62A0DD6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,12 +19,17 @@ Global
 		{E0378B3A-D3D0-4D4B-9089-487588915E22}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E0378B3A-D3D0-4D4B-9089-487588915E22}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E0378B3A-D3D0-4D4B-9089-487588915E22}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D2A2E26E-CF43-4FF9-865E-9747B62A0DD6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D2A2E26E-CF43-4FF9-865E-9747B62A0DD6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D2A2E26E-CF43-4FF9-865E-9747B62A0DD6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D2A2E26E-CF43-4FF9-865E-9747B62A0DD6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{E0378B3A-D3D0-4D4B-9089-487588915E22} = {530F2EFE-AFCA-447E-97DD-C749271E7278}
+		{D2A2E26E-CF43-4FF9-865E-9747B62A0DD6} = {530F2EFE-AFCA-447E-97DD-C749271E7278}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7CB0A261-F2CF-44C1-9127-85C167D21B22}
