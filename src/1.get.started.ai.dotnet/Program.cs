@@ -18,15 +18,15 @@ Console.WriteLine("--------------------");
 Console.WriteLine(await openAIChatService.GetChatMessageContentAsync("ท้องฟ้าสีอะไร"));
 Console.WriteLine();
 
-// // สร้างอินสแตนซ์ของบริการแชท Azure OpenAI Service โดยใช้โมเดล gpt-4o-mini และคีย์ API
-// IChatCompletionService azureChatService = new AzureOpenAIChatCompletionService(
-//     deploymentName: configuration["AzureOpenAI:DeploymentName"], // Use the configuration object to access the DeploymentName value
-//     endpoint: configuration["AzureOpenAI:Endpoint"], // Use the configuration object to access the Endpoint value
-//     apiKey: configuration["AzureOpenAI:ApiKey"] // Use the configuration object to access the ApiKey value
-// );
+// สร้างอินสแตนซ์ของบริการแชท Azure OpenAI Service โดยใช้โมเดล gpt-4o-mini และคีย์ API
+IChatCompletionService azureChatService = new AzureOpenAIChatCompletionService(
+    deploymentName: configuration["AzureOpenAI:DeploymentName"], // Use the configuration object to access the DeploymentName value
+    endpoint: configuration["AzureOpenAI:Endpoint"], // Use the configuration object to access the Endpoint value
+    apiKey: configuration["AzureOpenAI:ApiKey"] // Use the configuration object to access the ApiKey value
+);
 
-// // แสดงผลลัพธ์ของการถามคำถามในคอนโซล
-// Console.WriteLine("Azure OpenAI");
-// Console.WriteLine("--------------------");
-// Console.WriteLine(await azureChatService.GetChatMessageContentAsync("ท้องฟ้าสีอะไร"));
-// Console.WriteLine();
+// แสดงผลลัพธ์ของการถามคำถามในคอนโซล
+Console.WriteLine("Azure OpenAI");
+Console.WriteLine("--------------------");
+Console.WriteLine(await azureChatService.GetChatMessageContentAsync("ท้องฟ้าสีอะไร"));
+Console.WriteLine();
