@@ -9,7 +9,7 @@
 - [Get started incorporating AI into your .NET applications and services](https://medium.com/t-t-software-solution/%E0%B8%AA%E0%B8%A3%E0%B8%B8%E0%B8%9B%E0%B9%80%E0%B8%99%E0%B8%B7%E0%B9%89%E0%B8%AD%E0%B8%AB%E0%B8%B2%E0%B8%88%E0%B8%B2%E0%B8%81%E0%B8%87%E0%B8%B2%E0%B8%99-net-e1621671bacb)
   - [Source Code - Hello World](./src/1.get.started.ai.dotnet/)
   - [Source Code - Semantic Kernel](./src/1.get.started.ai.dotnet.advance/)
-- หัวข้อที่ผมเพิ่มเอง: Azure OpenAI Service
+- [หัวข้อที่ผมเพิ่มเอง: Azure OpenAI Service](https://medium.com/t-t-software-solution/%E0%B8%9A%E0%B8%B1%E0%B8%99%E0%B8%97%E0%B8%B6%E0%B8%81%E0%B8%81%E0%B8%B2%E0%B8%A3%E0%B8%97%E0%B8%94%E0%B8%A5%E0%B8%AD%E0%B8%87%E0%B9%83%E0%B8%8A%E0%B9%89-azure-openai-service-9ce61cf45289)
   - [Source Code - Hello World](./src/1.get.started.ai.dotnet/)
 - Better Together: .NET Aspire and Semantic Kernel
 - Build interactive AI-powered web apps with Blazor and .NET
