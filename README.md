@@ -11,7 +11,6 @@
   - [Source Code - Semantic Kernel](./src/1.get.started.ai.dotnet.advance/)
 - หัวข้อที่ผมเพิ่มเอง: Azure OpenAI Service
   - [Source Code - Hello World](./src/1.get.started.ai.dotnet/)
-  - [Source Code - Semantic Kernel](./src/1.get.started.ai.dotnet.advance/)
 - Better Together: .NET Aspire and Semantic Kernel
 - Build interactive AI-powered web apps with Blazor and .NET
 - Navigating the World of AI Models in .NET: From Local Development to the Cloud
