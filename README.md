@@ -16,6 +16,12 @@
 - [หัวข้อที่ผมเพิ่มเอง: Azure OpenAI Service](https://medium.com/t-t-software-solution/%E0%B8%9A%E0%B8%B1%E0%B8%99%E0%B8%97%E0%B8%B6%E0%B8%81%E0%B8%81%E0%B8%B2%E0%B8%A3%E0%B8%97%E0%B8%94%E0%B8%A5%E0%B8%AD%E0%B8%87%E0%B9%83%E0%B8%8A%E0%B9%89-azure-openai-service-9ce61cf45289)
   - [Source Code - Hello World](./src/1.get.started.ai.dotnet/)
 
+- RAG พื้นฐานโดย Semantic Kernel C# ร่วมกับ Chat Completion Model และ Text Embedding Model ใน Azure OpenAI Service (บทความยังไม่เสร็จ)
+  - [Source Code - Vector](./src/2.vector/)
+
+- บันทึกความเข้าใจจากการเรียนรู้การใช้งาน Semantic Kernel in C# ร่วมกับ MongoDB Atlas Vector Search (บทความยังไม่เสร็จ)
+  - Source Code (ยังไม่มี)
+
 - [บันทึกการศึกษา Generative AI และ Vector Database](https://medium.com/t-t-software-solution/%E0%B8%9A%E0%B8%B1%E0%B8%99%E0%B8%97%E0%B8%B6%E0%B8%81%E0%B8%81%E0%B8%B2%E0%B8%A3%E0%B8%A8%E0%B8%B6%E0%B8%81%E0%B8%A9%E0%B8%B2-generative-ai-%E0%B9%81%E0%B8%A5%E0%B8%B0-vector-database-6166f34f2dc4)
   - Source Code (รอเก็บใน Repository เพิ่มเติม)
 
@@ -24,9 +30,6 @@
 
 - [Minimal RAG & Vector Database](https://medium.com/t-t-software-solution/minimal-rag-vector-database-a219db209852)
   - [Source Code - Minimal RAG](./src/3.rag.minimal/)
-
-- บันทึกความเข้าใจจาการเรียนรู้การใช้งาน Semantic Kernel in C# ร่วมกับ MongoDB Atlas Vector Search (บทความยังไม่เสร็จ)
-  - [Source Code - Vector](./src/2.vector/)
 
 - Vector Real world (บทความยังไม่เสร็จ)
   - [Source Code - Vector Real World](./src/2.vector.realworld/)
