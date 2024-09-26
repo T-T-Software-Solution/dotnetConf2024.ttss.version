@@ -17,8 +17,10 @@
   - [Source Code - Hello World](./src/1.get.started.ai.dotnet/)
 
 - [บันทึกการศึกษา Generative AI และ Vector Database](https://medium.com/t-t-software-solution/%E0%B8%9A%E0%B8%B1%E0%B8%99%E0%B8%97%E0%B8%B6%E0%B8%81%E0%B8%81%E0%B8%B2%E0%B8%A3%E0%B8%A8%E0%B8%B6%E0%B8%81%E0%B8%A9%E0%B8%B2-generative-ai-%E0%B9%81%E0%B8%A5%E0%B8%B0-vector-database-6166f34f2dc4)
+  - Source Code (รอเก็บใน Repository เพิ่มเติม)
 
 - [บันทึกผลการศึกษาและทดลองใช้ Local LLM +Vector Database ในเครื่อง](https://medium.com/t-t-software-solution/%E0%B8%9A%E0%B8%B1%E0%B8%99%E0%B8%97%E0%B8%B6%E0%B8%81%E0%B8%9C%E0%B8%A5%E0%B8%81%E0%B8%B2%E0%B8%A3%E0%B8%A8%E0%B8%B6%E0%B8%81%E0%B8%A9%E0%B8%B2%E0%B9%81%E0%B8%A5%E0%B8%B0%E0%B8%97%E0%B8%94%E0%B8%A5%E0%B8%AD%E0%B8%87%E0%B9%83%E0%B8%8A%E0%B9%89-local-llm-vector-database-%E0%B9%83%E0%B8%99%E0%B9%80%E0%B8%84%E0%B8%A3%E0%B8%B7%E0%B9%88%E0%B8%AD%E0%B8%87-707cce329dae)
+  - Source Code (รอเก็บใน Repository เพิ่มเติม)
 
 - [Minimal RAG & Vector Database](https://medium.com/t-t-software-solution/minimal-rag-vector-database-a219db209852)
   - [Source Code - Minimal RAG](./src/3.rag.minimal/)
