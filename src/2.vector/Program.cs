@@ -116,7 +116,7 @@ namespace HelloVector
         }
         private static void DisplayVectorEmbeddingTitle()
         {
-            Console.WriteLine("2. ใช้โมเดล `gpt-4o-mini` และมี Text Embedding มาช่วยค้นหาประโยคที่เกี่ยวข้อง");
+            Console.WriteLine("2. ใช้โมเดล `gpt-4o-mini` และมี `text-embedding-3-small` มาช่วยแปลงข้อความเป็น Vector และค้นหาประโยคที่เกี่ยวข้อง");
             Console.WriteLine("--------------------");
         }
         private static void DisplayFriendsInfo(List<FriendInfo> friends)
