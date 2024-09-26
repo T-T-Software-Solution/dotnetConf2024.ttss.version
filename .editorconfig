@@ -1,0 +1,8 @@
+[*.cs]
+
+# IDE0210: Convert to top-level statements
+csharp_style_prefer_top_level_statements = true
+[*.cs]
+
+# IDE0210: Convert to top-level statements
+csharp_style_prefer_top_level_statements = true

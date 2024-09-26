@@ -9,6 +9,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "1.get.started.ai.dotnet", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "1.get.started.ai.dotnet.advance", "src\1.get.started.ai.dotnet.advance\1.get.started.ai.dotnet.advance.csproj", "{ECDEB1B9-4E0D-4CF6-924C-3E8FE3E7B29E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "2.vector", "src\2.vector\2.vector.csproj", "{0BDFC7E4-90F1-4B14-A32D-8A2C5E202AC5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VectorApp", "src\2.vector.realworld\VectorApp.csproj", "{791FB6B3-B87B-40FD-A01B-48C48703B6A1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,6 +27,14 @@ Global
 		{ECDEB1B9-4E0D-4CF6-924C-3E8FE3E7B29E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ECDEB1B9-4E0D-4CF6-924C-3E8FE3E7B29E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ECDEB1B9-4E0D-4CF6-924C-3E8FE3E7B29E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0BDFC7E4-90F1-4B14-A32D-8A2C5E202AC5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0BDFC7E4-90F1-4B14-A32D-8A2C5E202AC5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0BDFC7E4-90F1-4B14-A32D-8A2C5E202AC5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0BDFC7E4-90F1-4B14-A32D-8A2C5E202AC5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{791FB6B3-B87B-40FD-A01B-48C48703B6A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{791FB6B3-B87B-40FD-A01B-48C48703B6A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{791FB6B3-B87B-40FD-A01B-48C48703B6A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{791FB6B3-B87B-40FD-A01B-48C48703B6A1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -30,6 +42,8 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{882F8ECA-8CDE-4470-9BF8-CF6B5493F4A2} = {822A8DB8-60CE-4C44-9089-C963BECC508C}
 		{ECDEB1B9-4E0D-4CF6-924C-3E8FE3E7B29E} = {822A8DB8-60CE-4C44-9089-C963BECC508C}
+		{0BDFC7E4-90F1-4B14-A32D-8A2C5E202AC5} = {822A8DB8-60CE-4C44-9089-C963BECC508C}
+		{791FB6B3-B87B-40FD-A01B-48C48703B6A1} = {822A8DB8-60CE-4C44-9089-C963BECC508C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7CB0A261-F2CF-44C1-9127-85C167D21B22}
