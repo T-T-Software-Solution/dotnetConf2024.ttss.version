@@ -1,0 +1,5 @@
+Flask
+openai
+requests
+pymilvus
+pythainlp

@@ -6,7 +6,6 @@
 
 ซึ่งเนื้อหาและ Code อาจจะมีส่วนที่ยังไม่สมบูรณ์ ทีมงานต้องขออภัยมา ณ ที่นี้ด้วยนะครับ นะครับ
 
-
 บทความ
 - [Keynote - State of .NET + AI](https://medium.com/t-t-software-solution/net-conf-2024-keynote-state-of-net-ai-6323a3d2d481)
 
@@ -22,8 +21,10 @@
 - [บันทึกผลการศึกษาและทดลองใช้ Local LLM +Vector Database ในเครื่อง](https://medium.com/t-t-software-solution/%E0%B8%9A%E0%B8%B1%E0%B8%99%E0%B8%97%E0%B8%B6%E0%B8%81%E0%B8%9C%E0%B8%A5%E0%B8%81%E0%B8%B2%E0%B8%A3%E0%B8%A8%E0%B8%B6%E0%B8%81%E0%B8%A9%E0%B8%B2%E0%B9%81%E0%B8%A5%E0%B8%B0%E0%B8%97%E0%B8%94%E0%B8%A5%E0%B8%AD%E0%B8%87%E0%B9%83%E0%B8%8A%E0%B9%89-local-llm-vector-database-%E0%B9%83%E0%B8%99%E0%B9%80%E0%B8%84%E0%B8%A3%E0%B8%B7%E0%B9%88%E0%B8%AD%E0%B8%87-707cce329dae)
 
 - [Minimal RAG & Vector Database](https://medium.com/t-t-software-solution/minimal-rag-vector-database-a219db209852)
+  - [Source Code - Minimal RAG](./src/3.rag.minimal/)
 
 - บันทึกความเข้าใจจาการเรียนรู้การใช้งาน Semantic Kernel in C# ร่วมกับ MongoDB Atlas Vector Search (บทความยังไม่เสร็จ)
   - [Source Code - Vector](./src/2.vector/) (ยังไม่เสร็จ)
+
 - Vector Real world (บทความยังไม่เสร็จ)
   - [Source Code - Vector Real World](./src/2.vector.realworld/)
