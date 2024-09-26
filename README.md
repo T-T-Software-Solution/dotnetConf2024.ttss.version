@@ -26,7 +26,7 @@
   - [Source Code - Minimal RAG](./src/3.rag.minimal/)
 
 - บันทึกความเข้าใจจาการเรียนรู้การใช้งาน Semantic Kernel in C# ร่วมกับ MongoDB Atlas Vector Search (บทความยังไม่เสร็จ)
-  - [Source Code - Vector](./src/2.vector/) (ยังไม่เสร็จ)
+  - [Source Code - Vector](./src/2.vector/)
 
 - Vector Real world (บทความยังไม่เสร็จ)
   - [Source Code - Vector Real World](./src/2.vector.realworld/)
