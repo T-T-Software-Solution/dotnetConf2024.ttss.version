@@ -1,10 +1,8 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SemanticKernel;
-using Microsoft.SemanticKernel.Connectors.OpenAI;
 using Microsoft.SemanticKernel.Embeddings;
 using Microsoft.SemanticKernel.Memory;
-using Microsoft.SemanticKernel.Plugins.Memory;
 
 #pragma warning disable SKEXP0001
 #pragma warning disable SKEXP0010
@@ -25,11 +23,23 @@ namespace HelloVector
             SetupTextEmbedding(textEmbeddingModel, azureAPIEndpoint, azureAPIKey, builder);
             Kernel kernel = builder.Build();
 
-            var question = "เพื่อนคนไหนชอบอาหาร? บอกมาทั้งหมดที่เกี่ยวข้อง";
+            var question = "ใครชอบอาหารหรือของกิน";
 
             DisplayTitle(question);
-            //await DisplayResultOfPureChatModel(kernel, question);
-            await DisplayResultOfChatModelWithTextEmbedding(kernel, question);
+
+            // ทดลองเรียกใช้ Chat Model โดยตรง
+            await DisplayResultOfPureChatModel(kernel, question);
+
+            // ทดลองเรียกใช้ Chat Model และ Text Embedding มาช่วย
+            var friends = new List<FriendInfo>()
+            {
+                new FriendInfo { Name = "นัท", Detail = "ชอบอ่านหนังสือ, ชอบดูหนัง, ชอบเล่นเกม" },
+                new FriendInfo { Name = "แพร", Detail = "ชอบฟังเพลง, ชอบวาดรูป, ชอบทำอาหาร" },
+                new FriendInfo { Name = "ตูน", Detail = "ชอบกินขนม ชอบดื่มกาแฟ ชอบอาหารไทย" },
+                new FriendInfo { Name = "เบล", Detail = "ชอบเล่นกีฬา, ชอบดูซีรีส์, ชอบพบเพื่อน" },
+                new FriendInfo { Name = "มาย", Detail = "ชอบอาหารณี่ปุ่น, ชอบช็อปปิ้ง, ชอบอ่านนิยาย" }
+            };
+            await DisplayResultOfChatModelWithTextEmbedding(kernel, question, friends);
         }
         private static void ReadDataFromConfig(out string chatModel, out string textEmbeddingModel, out string azureAPIEndpoint, out string azureAPIKey)
         {
@@ -60,7 +70,10 @@ namespace HelloVector
         }
         private static void DisplayTitle(string question)
         {
-            Console.WriteLine($"โปรแกรมนี้จะทำงาน 2 หน้าที่: {question}");
+            Console.WriteLine("");
+            Console.WriteLine("==============");
+            Console.WriteLine($"{question}");
+            Console.WriteLine("==============");
             Console.WriteLine("");
         }
         private static async Task DisplayResultOfPureChatModel(Kernel kernel, string question)
@@ -79,51 +92,132 @@ namespace HelloVector
             Console.WriteLine("==============");
             Console.WriteLine("");
         }
-        private static async Task DisplayResultOfChatModelWithTextEmbedding(Kernel kernel, string question)
+
+        private struct FriendInfo
+        {
+            public string Name { get; set; }
+            public string Detail { get; set; }
+        }
+
+        private static async Task DisplayResultOfChatModelWithTextEmbedding(Kernel kernel, string question, List<FriendInfo> friends)
+        {
+            DisplayVectorEmbeddingTitle();
+
+            DisplayFriendsInfo(friends);
+
+            string memoryCollectionName = "fanFacts";
+            var memory = await ConvertFriendsInfoToVectorEmbedding(kernel, friends, memoryCollectionName);
+
+            await DisplayTotalVector(question, memory, memoryCollectionName);
+
+            List<MemoryQueryResult> queryResults = await DisplayRelatedVector(question, memory, memoryCollectionName);
+
+            await RAG(kernel, question, queryResults);
+        }
+        private static void DisplayVectorEmbeddingTitle()
         {
             Console.WriteLine("2. ใช้โมเดล `gpt-4o-mini` และมี Text Embedding มาช่วยค้นหาประโยคที่เกี่ยวข้อง");
             Console.WriteLine("--------------------");
+        }
+        private static void DisplayFriendsInfo(List<FriendInfo> friends)
+        {
+            // Display the results with their relevance scores
+            Console.WriteLine("ข้อมูลความชอบของเพื่อนทั้งหมด");
+            foreach (var friend in friends)
+            {
+                Console.WriteLine($"{friend.Name}: {friend.Detail}");
+            }
 
+            Console.WriteLine("");
+        }
+        private static async Task<SemanticTextMemory> ConvertFriendsInfoToVectorEmbedding(Kernel kernel, List<FriendInfo> friends, string memoryCollectionName)
+        {
             // get the embeddings generator service
             var embeddingGenerator = kernel.Services.GetRequiredService<ITextEmbeddingGenerationService>();
             var memory = new SemanticTextMemory(new VolatileMemoryStore(), embeddingGenerator);
-
-            // add facts to the collection
-            const string MemoryCollectionName = "fanFacts";
-
-            await memory.SaveInformationAsync(MemoryCollectionName, id: "info1", text: "นัท: อ่านหนังสือ, ดูหนัง, เล่นเกม");
-            await memory.SaveInformationAsync(MemoryCollectionName, id: "info2", text: "แพร: ฟังเพลง, วาดรูป, ทำอาหาร");
-            await memory.SaveInformationAsync(MemoryCollectionName, id: "info3", text: "ตูน: ท่องเที่ยว, ถ่ายรูป, กินอาหารอร่อย");   
-            await memory.SaveInformationAsync(MemoryCollectionName, id: "info4", text: "เบล: เล่นกีฬา, ดูซีรีส์, พบเพื่อน");
-            await memory.SaveInformationAsync(MemoryCollectionName, id: "info5", text: "มาย: ทำอาหาร, ช็อปปิ้ง, อ่านนิยาย");
-
-            TextMemoryPlugin memoryPlugin = new(memory);
-
-            // Import the text memory plugin into the Kernel.
-            kernel.ImportPluginFromObject(memoryPlugin);
-
-            OpenAIPromptExecutionSettings settings = new()
+            
+            int infoIndex = 1;
+            foreach (var friend in friends)
             {
-                ToolCallBehavior = ToolCallBehavior.AutoInvokeKernelFunctions,
-            };
+                await memory.SaveInformationAsync(memoryCollectionName, id: $"info{infoIndex}", text: $"{friend.Name}: {friend.Detail}");
 
-            var prompt = @"
-                Question: {{$input}}
-                Answer the question using the memory content: {{Recall}}";
+                infoIndex++;
+            }
 
-            var arguments = new KernelArguments(settings)
+            return memory;
+        }
+        private static async Task<List<MemoryQueryResult>> DisplayTotalVector(string question, SemanticTextMemory memory, string memoryCollectionName)
+        {
+            // Set your desired minimum relevance score
+            var minRelevanceScore = 0.0;
+
+            // Query the memory store for relevant data
+            var queryResults = new List<MemoryQueryResult>();
+            await foreach (var result in memory.SearchAsync(
+                memoryCollectionName,
+                question,
+                limit: 10, // Set a high limit to include all relevant data
+                minRelevanceScore: minRelevanceScore))
             {
-                { "input", question },
-                { "collection", MemoryCollectionName }
-            };
+                queryResults.Add(result);
+            }
 
-            var responseTwo = kernel.InvokePromptStreamingAsync(prompt, arguments);
-            await foreach (var result in responseTwo)
+            // Display the results with their relevance scores
+            Console.WriteLine("แปลงเป็น Vector Embedding แล้วดูผลลัพธ์ทั้งหมดคะแนนทั้งหมด");
+            foreach (var result in queryResults)
+            {
+                Console.WriteLine($"Relevance Score: {result.Relevance:F2}, Data: {result.Metadata.Text}");
+            }
+
+            Console.WriteLine("");
+            return queryResults;
+        }
+        private static async Task<List<MemoryQueryResult>> DisplayRelatedVector(string question, SemanticTextMemory memory, string memoryCollectionName)
+        {
+            double minRelevanceScore = 0.40;
+            List<MemoryQueryResult> queryResults = new List<MemoryQueryResult>();
+            await foreach (var result in memory.SearchAsync(
+                memoryCollectionName,
+                question,
+                limit: 3,
+                minRelevanceScore: minRelevanceScore))
+            {
+                queryResults.Add(result);
+            }
+
+            // Display the results with their relevance scores
+            Console.WriteLine("ดูผลลัพธ์ที่คะแนนมากกว่าหรือเท่ากับ 0.40");
+            foreach (var result in queryResults)
+            {
+                Console.WriteLine($"Relevance Score: {result.Relevance:F2}, Data: {result.Metadata.Text}");
+            }
+
+            Console.WriteLine("");
+            return queryResults;
+        } 
+        private static async Task RAG(Kernel kernel, string question, List<MemoryQueryResult> queryResults)
+        {
+            // Prepare the relevant facts for the prompt
+            var relevantFacts = string.Join("\n", queryResults.Select(r => r.Metadata.Text));
+
+            // Construct the prompt for the language model
+            var prompt = $@"
+                Question: {question}
+                Answer the question using the memory content:
+
+                {relevantFacts}
+
+                Answer:";
+
+            Console.WriteLine("สรุปผลจากคำตอบ");
+            var response = kernel.InvokePromptStreamingAsync(prompt);
+            await foreach (var result in response)
             {
                 Console.Write(result);
             }
 
-            Console.WriteLine($"");
+            Console.WriteLine("");
+            Console.WriteLine("");
         }
     }
 }
