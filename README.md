@@ -6,7 +6,7 @@
 
 ซึ่งเนื้อหาและ Code อาจจะมีส่วนที่ยังไม่สมบูรณ์ ทีมงานต้องขออภัยมา ณ ที่นี้ด้วยนะครับ นะครับ
 
-บทความ
+# ผู้เขียน - นายป้องกัน  
 - [Keynote - State of .NET + AI](https://medium.com/t-t-software-solution/net-conf-2024-keynote-state-of-net-ai-6323a3d2d481)
 
 - [Get started incorporating AI into your .NET applications and services](https://medium.com/t-t-software-solution/%E0%B8%AA%E0%B8%A3%E0%B8%B8%E0%B8%9B%E0%B9%80%E0%B8%99%E0%B8%B7%E0%B9%89%E0%B8%AD%E0%B8%AB%E0%B8%B2%E0%B8%88%E0%B8%B2%E0%B8%81%E0%B8%87%E0%B8%B2%E0%B8%99-net-e1621671bacb)
@@ -22,6 +22,8 @@
 - บันทึกความเข้าใจจากการเรียนรู้การใช้งาน Semantic Kernel in C# ร่วมกับ MongoDB Atlas Vector Search (บทความยังไม่เสร็จ)
   - Source Code (ยังไม่มี)
 
+# ผู้เขียน - คุณนคร
+
 - [บันทึกการศึกษา Generative AI และ Vector Database](https://medium.com/t-t-software-solution/%E0%B8%9A%E0%B8%B1%E0%B8%99%E0%B8%97%E0%B8%B6%E0%B8%81%E0%B8%81%E0%B8%B2%E0%B8%A3%E0%B8%A8%E0%B8%B6%E0%B8%81%E0%B8%A9%E0%B8%B2-generative-ai-%E0%B9%81%E0%B8%A5%E0%B8%B0-vector-database-6166f34f2dc4)
   - Source Code (รอเก็บใน Repository เพิ่มเติม)
 
@@ -33,3 +35,8 @@
 
 - Vector Real world (บทความยังไม่เสร็จ)
   - [Source Code - Vector Real World](./src/2.vector.realworld/)
+
+# ผู้เขียน - คุณมาย
+
+- [ระบบ RAG ตอบคำถามจากบทความเว็บด้วย JavaScript และไลบรารี LangChain](./src/3.rag.javascript.langchain/)
+  - [Source Code - RAG JS LangChain](./src/3.rag.javascript.langchain/src/main.ts)
