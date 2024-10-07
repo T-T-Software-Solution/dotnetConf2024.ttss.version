@@ -13,14 +13,14 @@
   - [Source Code - Hello World](./src/1.get.started.ai.dotnet/)
   - [Source Code - Semantic Kernel](./src/1.get.started.ai.dotnet.advance/)
 
-- [หัวข้อที่ผมเพิ่มเอง: Azure OpenAI Service](https://medium.com/t-t-software-solution/%E0%B8%9A%E0%B8%B1%E0%B8%99%E0%B8%97%E0%B8%B6%E0%B8%81%E0%B8%81%E0%B8%B2%E0%B8%A3%E0%B8%97%E0%B8%94%E0%B8%A5%E0%B8%AD%E0%B8%87%E0%B9%83%E0%B8%8A%E0%B9%89-azure-openai-service-9ce61cf45289)
+- [Azure OpenAI Service](https://medium.com/t-t-software-solution/%E0%B8%9A%E0%B8%B1%E0%B8%99%E0%B8%97%E0%B8%B6%E0%B8%81%E0%B8%81%E0%B8%B2%E0%B8%A3%E0%B8%97%E0%B8%94%E0%B8%A5%E0%B8%AD%E0%B8%87%E0%B9%83%E0%B8%8A%E0%B9%89-azure-openai-service-9ce61cf45289)
   - [Source Code - Hello World](./src/1.get.started.ai.dotnet/)
 
 - [พื้นฐาน RAG และ Vector แบบเข้าใจง่ายๆ เห็นภาพรัวๆ ด้วย Semantic Kernel C# และ Azure OpenAI Service](https://medium.com/t-t-software-solution/rag-%E0%B8%9E%E0%B8%B7%E0%B9%89%E0%B8%99%E0%B8%90%E0%B8%B2%E0%B8%99%E0%B9%82%E0%B8%94%E0%B8%A2-semantic-kernel-c-%E0%B8%A3%E0%B9%88%E0%B8%A7%E0%B8%A1%E0%B8%81%E0%B8%B1%E0%B8%9A-chat-completion-model-%E0%B9%81%E0%B8%A5%E0%B8%B0-text-embedding-model-%E0%B9%83%E0%B8%99-azure-9a86f606c225)
   - [Source Code - Vector](./src/2.vector/)
 
-- บันทึกความเข้าใจจากการเรียนรู้การใช้งาน Semantic Kernel in C# ร่วมกับ MongoDB Atlas Vector Search (บทความยังไม่เสร็จ)
-  - Source Code (ยังไม่มี)
+- บันทึกความเข้าใจจากการเรียนรู้การใช้งาน Semantic Kernel in C# ร่วมกับ MongoDB Atlas Vector Search และ MongoDB Compass (บทความยังไม่เสร็จ)
+  - [Source Code](./src/2.vector.mongodb.atlas/)
 
 # ผู้เขียน - คุณนคร
 
