@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System.Text;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.Connectors.MongoDB;
@@ -25,9 +26,9 @@ namespace HelloVector
 
             SemanticTextMemory memory = SetupSemanticMemoryWithMongoDBStore(mongodbConnectionString, mongodbSearchIndexName, mongodbDatabaseName, kernel);
 
-            await FetchAndSaveMovieDocuments(memory, 100, mongodbConnectionString, mongodbCollectionName);
+            //await FetchAndSaveMovieDocuments(memory, 100, mongodbConnectionString, mongodbCollectionName);
 
-            await PerformVectorSearchInMongoDB(mongodbCollectionName, memory);
+            await RAGInMongoDB(kernel, mongodbCollectionName, memory);
         }
         private static void ReadDataFromConfig(out string chatModel, out string textEmbeddingModel, out string azureAPIEndpoint, out string azureAPIKey,out string mongodbConnectionString, out string mongodbSearchIndexName, out string mongodbDatabaseName, out string mongodbCollectionName)
         {
@@ -110,7 +111,7 @@ namespace HelloVector
                 }
             }
         }
-        private static async Task PerformVectorSearchInMongoDB(string mongodbCollectionName, SemanticTextMemory memory)
+        private static async Task RAGInMongoDB(Kernel kernel, string mongodbCollectionName, SemanticTextMemory memory)
         {
             Console.WriteLine("Welcome to the Movie Recommendation System!");
             Console.WriteLine("Type 'x' and press Enter to exit.");
@@ -119,6 +120,7 @@ namespace HelloVector
 
             while (true)
             {
+                Console.WriteLine();
                 Console.WriteLine("Tell me what sort of film you want to watch..");
                 Console.WriteLine();
 
@@ -134,11 +136,24 @@ namespace HelloVector
 
                 Console.WriteLine();
 
-                var memories = memory.SearchAsync(mongodbCollectionName, userInput, limit: 3, minRelevanceScore: 0.1);
+                var response = kernel.InvokePromptStreamingAsync("Convert to only the movie genre in English.: " + userInput);
+
+                StringBuilder prompts = new StringBuilder();
+                await foreach (var result in response)
+                {
+                    prompts.Append(result);
+                }
+
+                Console.WriteLine();
+                Console.WriteLine(prompts.ToString());
+                Console.WriteLine();
+
+                var memories = memory.SearchAsync(mongodbCollectionName, prompts.ToString(), limit: 3, minRelevanceScore: 0.6);
 
                 Console.WriteLine(String.Format("{0,-20} {1,-50} {2,-10} {3,-15}", "Title", "Plot", "Year", "Relevance (0 - 1)"));
                 Console.WriteLine(new String('-', 95)); // Adjust the length based on your column widths
 
+                StringBuilder relevantFacts = new StringBuilder();
                 await foreach (var mem in memories)
                 {
                     Console.WriteLine(String.Format("{0,-20} {1,-50} {2,-10} {3,-15}",
@@ -146,7 +161,31 @@ namespace HelloVector
                         mem.Metadata.Description.Length > 47 ? mem.Metadata.Description.Substring(0, 47) + "..." : mem.Metadata.Description, // Truncate long descriptions
                         mem.Metadata.AdditionalMetadata,
                         mem.Relevance.ToString("0.00"))); // Format relevance score to two decimal places
+
+                    relevantFacts.AppendLine($"ชื่อหนัง: {mem.Metadata.Id}, รายละเอียด: {mem.Metadata.Description}");
                 }
+
+                // Construct the prompt for the language model
+                var prompt = $@"
+                    Question: สรุปชื่อหนังและเนื้อหาของหนังว่าเกี่ยวกับอะไร เป็นภาษาไทย
+
+                    Answer the question using the memory content:
+
+                    ความต้องการ: {userInput}
+
+                    ข้อมูลที่เกี่ยวข้อง:   
+                    {relevantFacts.ToString()}
+
+                    Answer:";
+
+                response = kernel.InvokePromptStreamingAsync(prompt);
+                await foreach (var result in response)
+                {
+                    Console.Write(result);
+                }
+
+                Console.WriteLine();
+                Console.WriteLine();
             }
         }
         public class Movie
