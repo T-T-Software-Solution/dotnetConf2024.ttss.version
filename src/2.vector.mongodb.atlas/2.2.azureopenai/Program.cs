@@ -1,12 +1,14 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.SemanticKernel;
+using Microsoft.SemanticKernel.Connectors.MongoDB;
 using Microsoft.SemanticKernel.Embeddings;
 using Microsoft.SemanticKernel.Memory;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
+using MongoDB.Driver;
 
-#pragma warning disable SKEXP0001
-#pragma warning disable SKEXP0010
-#pragma warning disable SKEXP0050
+#pragma warning disable SKEXP0001, SKEXP0010, SKEXP0020, SKEXP0050
 
 namespace HelloVector
 {
@@ -15,28 +17,90 @@ namespace HelloVector
         static async Task Main(string[] args)
         {
             string chatModel, textEmbeddingModel, azureAPIEndpoint, azureAPIKey;
+            string mongodbConnectionString, mongodbSearchIndexName, mongodbDatabaseName, mongodbCollectionName;
 
-            ReadDataFromConfig(out chatModel, out textEmbeddingModel, out azureAPIEndpoint, out azureAPIKey);
+            ReadDataFromConfig(
+                out chatModel, out textEmbeddingModel, out azureAPIEndpoint, out azureAPIKey,
+                out mongodbConnectionString, out mongodbSearchIndexName, out mongodbDatabaseName, out mongodbCollectionName
+                );
 
-            var builder = Kernel.CreateBuilder();
-            SetupChatCompletion(chatModel, azureAPIEndpoint, azureAPIKey, builder);
-            SetupTextEmbedding(textEmbeddingModel, azureAPIEndpoint, azureAPIKey, builder);
-            Kernel kernel = builder.Build();
+            Kernel kernel = SetUpSemanticKernel(chatModel, textEmbeddingModel, azureAPIEndpoint, azureAPIKey);
+            SemanticTextMemory memory = SetupSemanticMemoryWithMongoDBStore(mongodbConnectionString, mongodbSearchIndexName, mongodbDatabaseName, kernel);
 
-            // var question = "ใครชอบอาหารหรือของกิน";
+            // Fetch and save movie documents to the memory store
+            await FetchAndSaveMovieDocuments(memory, 100, mongodbConnectionString, mongodbCollectionName);
 
-            // // ทดลองเรียกใช้ Chat Model และ Text Embedding มาช่วย
-            // var friends = new List<FriendInfo>()
-            // {
-            //     new FriendInfo { Name = "นัท", Detail = "ชอบอ่านหนังสือ, ชอบดูหนัง, ชอบเล่นเกม" },
-            //     new FriendInfo { Name = "แพร", Detail = "ชอบฟังเพลง, ชอบวาดรูป, ชอบทำอาหาร" },
-            //     new FriendInfo { Name = "ตูน", Detail = "ชอบกินขนม ชอบดื่มกาแฟ ชอบอาหารไทย" },
-            //     new FriendInfo { Name = "เบล", Detail = "ชอบเล่นกีฬา, ชอบดูซีรีส์, ชอบพบเพื่อน" },
-            //     new FriendInfo { Name = "มาย", Detail = "ชอบอาหารณี่ปุ่น, ชอบช็อปปิ้ง, ชอบอ่านนิยาย" }
-            // };
-            // await DisplayResultOfChatModelWithTextEmbedding(kernel, question, friends);
+            Console.WriteLine("Welcome to the Movie Recommendation System!");
+            Console.WriteLine("Type 'x' and press Enter to exit.");
+            Console.WriteLine("============================================");
+            Console.WriteLine();
+
+            while (true)
+            {
+                Console.WriteLine("Tell me what sort of film you want to watch..");
+                Console.WriteLine();
+
+                Console.Write("> ");
+
+                var userInput = Console.ReadLine();
+
+                if (userInput.ToLower() == "x")
+                {
+                    Console.WriteLine("Exiting application..");
+                    break;
+                }
+
+                Console.WriteLine();
+
+                var memories = memory.SearchAsync(mongodbCollectionName, userInput, limit: 3, minRelevanceScore: 0.1);
+
+                Console.WriteLine(String.Format("{0,-20} {1,-50} {2,-10} {3,-15}", "Title", "Plot", "Year", "Relevance (0 - 1)"));
+                Console.WriteLine(new String('-', 95)); // Adjust the length based on your column widths
+
+                await foreach (var mem in memories)
+                {
+                    Console.WriteLine(String.Format("{0,-20} {1,-50} {2,-10} {3,-15}",
+                        mem.Metadata.Id,
+                        mem.Metadata.Description.Length > 47 ? mem.Metadata.Description.Substring(0, 47) + "..." : mem.Metadata.Description, // Truncate long descriptions
+                        mem.Metadata.AdditionalMetadata,
+                        mem.Relevance.ToString("0.00"))); // Format relevance score to two decimal places
+                }
+            }
         }
-        private static void ReadDataFromConfig(out string chatModel, out string textEmbeddingModel, out string azureAPIEndpoint, out string azureAPIKey)
+
+        private static SemanticTextMemory SetupSemanticMemoryWithMongoDBStore(string mongodbConnectionString, string mongodbSearchIndexName, string mongodbDatabaseName, Kernel kernel)
+        {
+            // Setup the MongoDB memory store
+            var mongoDBMemoryStore = new MongoDBMemoryStore(mongodbConnectionString, mongodbDatabaseName, mongodbSearchIndexName);
+
+            // get the embeddings generator service
+            var embeddingGenerator = kernel.Services.GetRequiredService<ITextEmbeddingGenerationService>();
+            var memory = new SemanticTextMemory(mongoDBMemoryStore, embeddingGenerator);
+            return memory;
+        }
+
+        private static Kernel SetUpSemanticKernel(string chatModel, string textEmbeddingModel, string azureAPIEndpoint, string azureAPIKey)
+        {
+            var builder = Kernel.CreateBuilder();
+
+            // Setup Chat Completion
+            builder.AddAzureOpenAIChatCompletion(
+                            deploymentName: chatModel,
+                            endpoint: azureAPIEndpoint,
+                            apiKey: azureAPIKey
+                        );
+
+            // Setup Text Embedding
+            builder.AddAzureOpenAITextEmbeddingGeneration(
+                            deploymentName: textEmbeddingModel,
+                            endpoint: azureAPIEndpoint,
+                            apiKey: azureAPIKey
+                        );
+
+            return builder.Build();
+        }
+
+        private static void ReadDataFromConfig(out string chatModel, out string textEmbeddingModel, out string azureAPIEndpoint, out string azureAPIKey,out string mongodbConnectionString, out string mongodbSearchIndexName, out string mongodbDatabaseName, out string mongodbCollectionName)
         {
             IConfiguration configuration = new ConfigurationBuilder()
                             .AddJsonFile("appsettings.json")
@@ -46,148 +110,202 @@ namespace HelloVector
             textEmbeddingModel = configuration["AzureOpenAI:TextEmbeddingModel"] ?? throw new ArgumentNullException("AzureOpenAI:TextEmbeddingModel");
             azureAPIEndpoint = configuration["AzureOpenAI:Endpoint"] ?? throw new ArgumentNullException("AzureOpenAI:Endpoint");
             azureAPIKey = configuration["AzureOpenAI:ApiKey"] ?? throw new ArgumentNullException("AzureOpenAI:ApiKey");
-        }
-        private static void SetupChatCompletion(string chatModel, string azureAPIEndpoint, string azureAPIKey, IKernelBuilder builder)
-        {
-            builder.AddAzureOpenAIChatCompletion(
-                            deploymentName: chatModel,
-                            endpoint: azureAPIEndpoint,
-                            apiKey: azureAPIKey
-                        );
-        }
-        private static void SetupTextEmbedding(string textEmbeddingModel, string azureAPIEndpoint, string azureAPIKey, IKernelBuilder builder)
-        {
-            builder.AddAzureOpenAITextEmbeddingGeneration(
-                            deploymentName: textEmbeddingModel,
-                            endpoint: azureAPIEndpoint,
-                            apiKey: azureAPIKey
-                        );
-        }
-        private struct FriendInfo
-        {
-            public string Name { get; set; }
-            public string Detail { get; set; }
-        }
 
-        private static async Task DisplayResultOfChatModelWithTextEmbedding(Kernel kernel, string question, List<FriendInfo> friends)
-        {
-            DisplayVectorEmbeddingTitle();
-
-            DisplayFriendsInfo(friends);
-
-            string memoryCollectionName = "fanFacts";
-            var memory = await ConvertFriendsInfoToVectorEmbedding(kernel, friends, memoryCollectionName);
-
-            await DisplayTotalVector(question, memory, memoryCollectionName);
-
-            List<MemoryQueryResult> queryResults = await DisplayRelatedVector(question, memory, memoryCollectionName);
-
-            await RAG(kernel, question, queryResults);
+            mongodbConnectionString = configuration["MongoDB:ConnectionString"] ?? throw new ArgumentNullException("MongoDB:ConnectionString");
+            mongodbSearchIndexName = configuration["MongoDB:SearchIndexName"] ?? throw new ArgumentNullException("MongoDB:SearchIndexName");
+            mongodbDatabaseName = configuration["MongoDB:DatabaseName"] ?? throw new ArgumentNullException("MongoDB:DatabaseName");
+            mongodbCollectionName = configuration["MongoDB:CollectionName"] ?? throw new ArgumentNullException("MongoDB:CollectionName");
         }
-        private static void DisplayVectorEmbeddingTitle()
+        private static async Task FetchAndSaveMovieDocuments(ISemanticTextMemory memory, int limitSize, string mongodbConnectionString, string mongodbCollectionName)
         {
-            Console.WriteLine("2. ใช้โมเดล `gpt-4o-mini` และมี `text-embedding-3-small` มาช่วยแปลงข้อความเป็น Vector และค้นหาประโยคที่เกี่ยวข้อง");
-            Console.WriteLine("--------------------");
-        }
-        private static void DisplayFriendsInfo(List<FriendInfo> friends)
-        {
-            // Display the results with their relevance scores
-            Console.WriteLine("ข้อมูลความชอบของเพื่อนทั้งหมด");
-            foreach (var friend in friends)
+            Console.WriteLine("Memory is ready...");
+            Console.WriteLine("Please wait while we fetch and save movie documents to the memory store..");
+
+            MongoClient mongoClient = new MongoClient(mongodbConnectionString);
+            var movieDB = mongoClient.GetDatabase("sample_mflix");
+            var movieCollection = movieDB.GetCollection<Movie>("movies");
+            List<Movie> movieDocuments;
+
+            Console.WriteLine("-- Fetching documents from MongoDB...");
+
+            movieDocuments = movieCollection.Find(m => m.Plot != null).Limit(limitSize).ToList();
+
+            foreach (var movie in movieDocuments)
             {
-                Console.WriteLine($"{friend.Name}: {friend.Detail}");
-            }
+                try
+                {
+                    Console.WriteLine($"-- Saving movie document: {movie.Title}");
+                    
+                    await memory.SaveReferenceAsync(
+                        collection: mongodbCollectionName,
+                        description: movie.Plot,
+                        text: movie.Plot,
+                        externalId: movie.Title,
+                        externalSourceName: "Sample_Mflix_Movies",
+                        additionalMetadata: movie.Year.ToString());
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
 
-            Console.WriteLine("");
+                }
+            }
         }
-        private static async Task<SemanticTextMemory> ConvertFriendsInfoToVectorEmbedding(Kernel kernel, List<FriendInfo> friends, string memoryCollectionName)
+
+        public class Movie
         {
-            // get the embeddings generator service
-            var embeddingGenerator = kernel.Services.GetRequiredService<ITextEmbeddingGenerationService>();
-            var memory = new SemanticTextMemory(new VolatileMemoryStore(), embeddingGenerator);
-            
-            int infoIndex = 1;
-            foreach (var friend in friends)
-            {
-                await memory.SaveInformationAsync(memoryCollectionName, id: $"info{infoIndex}", text: $"{friend.Name}: {friend.Detail}");
+            [BsonId]
+            [BsonRepresentation(BsonType.ObjectId)]
+            public string Id { get; set; }
 
-                infoIndex++;
-            }
+            [BsonElement("plot")]
+            public string Plot { get; set; }
 
-            return memory;
+            [BsonElement("genres")]
+            public List<string> Genres { get; set; }
+
+            [BsonElement("runtime")]
+            public int Runtime { get; set; }
+
+            [BsonElement("cast")]
+            public List<string> Cast { get; set; }
+
+            [BsonElement("num_mflix_comments")]
+            public int NumMflixComments { get; set; }
+
+            [BsonElement("poster")]
+            public string Poster { get; set; }
+
+            [BsonElement("title")]
+            public string Title { get; set; }
+
+            [BsonElement("fullplot")]
+            public string Fullplot { get; set; }
+
+            [BsonElement("languages")]
+            public List<string> Languages { get; set; }
+
+            [BsonElement("released")]
+            public DateTime Released { get; set; }
+
+            [BsonElement("directors")]
+            public List<string> Directors { get; set; }
+
+            [BsonElement("writers")]
+            public List<string> Writers { get; set; }
+
+            [BsonElement("awards")]
+            public Awards Awards { get; set; }
+
+            [BsonElement("rated")]
+            public string? Rated { get; set; }
+
+            [BsonElement("lastupdated")]
+            public string Lastupdated { get; set; }
+
+
+            [BsonElement("year")]
+            public object Year { get; set; }
+
+            [BsonElement("imdb")]
+            public Imdb Imdb { get; set; }
+
+            [BsonElement("countries")]
+            public List<string> Countries { get; set; }
+
+            [BsonElement("type")]
+            public string Type { get; set; }
+
+            [BsonElement("tomatoes")]
+            public Tomatoes Tomatoes { get; set; }
+
+            [BsonElement("metacritic")]
+            public int? Metacritic { get; set; }
+
+            [BsonElement("awesome")]
+            public bool? Awesome { get; set; }
         }
-        private static async Task<List<MemoryQueryResult>> DisplayTotalVector(string question, SemanticTextMemory memory, string memoryCollectionName)
+
+        public class Awards
         {
-            // Set your desired minimum relevance score
-            var minRelevanceScore = 0.0;
+            [BsonElement("wins")]
+            public int Wins { get; set; }
 
-            // Query the memory store for relevant data
-            var queryResults = new List<MemoryQueryResult>();
-            await foreach (var result in memory.SearchAsync(
-                memoryCollectionName,
-                question,
-                limit: 10, // Set a high limit to include all relevant data
-                minRelevanceScore: minRelevanceScore))
-            {
-                queryResults.Add(result);
-            }
+            [BsonElement("nominations")]
+            public int Nominations { get; set; }
 
-            // Display the results with their relevance scores
-            Console.WriteLine("แปลงเป็น Vector Embedding แล้วดูผลลัพธ์ทั้งหมดคะแนนทั้งหมด");
-            foreach (var result in queryResults)
-            {
-                Console.WriteLine($"Relevance Score: {result.Relevance:F2}, Data: {result.Metadata.Text}");
-            }
-
-            Console.WriteLine("");
-            return queryResults;
+            [BsonElement("text")]
+            public string Text { get; set; }
         }
-        private static async Task<List<MemoryQueryResult>> DisplayRelatedVector(string question, SemanticTextMemory memory, string memoryCollectionName)
+
+        public class Imdb
         {
-            double minRelevanceScore = 0.40;
-            List<MemoryQueryResult> queryResults = new List<MemoryQueryResult>();
-            await foreach (var result in memory.SearchAsync(
-                memoryCollectionName,
-                question,
-                limit: 3,
-                minRelevanceScore: minRelevanceScore))
-            {
-                queryResults.Add(result);
-            }
+            [BsonElement("id")]
+            public object ImdbId { get; set; }
 
-            // Display the results with their relevance scores
-            Console.WriteLine("ดูผลลัพธ์ที่คะแนนมากกว่าหรือเท่ากับ 0.40");
-            foreach (var result in queryResults)
-            {
-                Console.WriteLine($"Relevance Score: {result.Relevance:F2}, Data: {result.Metadata.Text}");
-            }
+            [BsonElement("votes")]
+            public object Votes { get; set; }
 
-            Console.WriteLine("");
-            return queryResults;
-        } 
-        private static async Task RAG(Kernel kernel, string question, List<MemoryQueryResult> queryResults)
+            [BsonElement("rating")]
+            public object Rating { get; set; }
+        }
+
+        public class Tomatoes
         {
-            // Prepare the relevant facts for the prompt
-            var relevantFacts = string.Join("\n", queryResults.Select(r => r.Metadata.Text));
+            [BsonElement("viewer")]
+            public Viewer Viewer { get; set; }
 
-            // Construct the prompt for the language model
-            var prompt = $@"
-                Question: {question}
-                Answer the question using the memory content:
+            [BsonElement("lastUpdated")]
+            public DateTime LastUpdated { get; set; }
 
-                {relevantFacts}
+            [BsonElement("dvd")]
+            public DateTime? DVD { get; set; }
 
-                Answer:";
+            [BsonElement("website")]
+            public string? Website { get; set; }
 
-            Console.WriteLine("สรุปผลจากคำตอบ");
-            var response = kernel.InvokePromptStreamingAsync(prompt);
-            await foreach (var result in response)
-            {
-                Console.Write(result);
-            }
+            [BsonElement("production")]
+            public string? Production { get; set; }
 
-            Console.WriteLine("");
-            Console.WriteLine("");
+            [BsonElement("critic")]
+            public Critic? Critic { get; set; }
+
+            [BsonElement("rotten")]
+            public int? Rotten { get; set; }
+
+            [BsonElement("fresh")]
+            public int? Fresh { get; set; }
+
+            [BsonElement("boxOffice")]
+            public string? BoxOffice { get; set; }
+
+            [BsonElement("consensus")]
+            public string? Consensus { get; set; }
+
+        }
+
+        public class Viewer
+        {
+            [BsonElement("rating")]
+            public double Rating { get; set; }
+
+            [BsonElement("numReviews")]
+            public int NumReviews { get; set; }
+
+            [BsonElement("meter")]
+            public int Meter { get; set; }
+        }
+
+        public class Critic
+        {
+            [BsonElement("rating")]
+            public double Rating { get; set; }
+
+            [BsonElement("numReviews")]
+            public int NumReviews { get; set; }
+
+            [BsonElement("meter")]
+            public int Meter { get; set; }
         }
     }
 }
