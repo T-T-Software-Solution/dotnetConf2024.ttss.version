@@ -145,7 +145,7 @@ namespace HelloVector
                 }
 
                 Console.WriteLine();
-                Console.WriteLine(prompts.ToString());
+                Console.WriteLine($"ประเภทหนังที่คุณเลือกคือ: {prompts.ToString()}");
                 Console.WriteLine();
 
                 var memories = memory.SearchAsync(mongodbCollectionName, prompts.ToString(), limit: 3, minRelevanceScore: 0.6);
@@ -164,6 +164,9 @@ namespace HelloVector
 
                     relevantFacts.AppendLine($"ชื่อหนัง: {mem.Metadata.Id}, รายละเอียด: {mem.Metadata.Description}");
                 }
+
+                Console.WriteLine();
+                Console.WriteLine();
 
                 // Construct the prompt for the language model
                 var prompt = $@"
