@@ -19,17 +19,99 @@ namespace HelloVector
             string chatModel, textEmbeddingModel, azureAPIEndpoint, azureAPIKey;
             string mongodbConnectionString, mongodbSearchIndexName, mongodbDatabaseName, mongodbCollectionName;
 
-            ReadDataFromConfig(
-                out chatModel, out textEmbeddingModel, out azureAPIEndpoint, out azureAPIKey,
-                out mongodbConnectionString, out mongodbSearchIndexName, out mongodbDatabaseName, out mongodbCollectionName
-                );
+            ReadDataFromConfig(out chatModel, out textEmbeddingModel, out azureAPIEndpoint, out azureAPIKey,out mongodbConnectionString, out mongodbSearchIndexName, out mongodbDatabaseName, out mongodbCollectionName);
 
             Kernel kernel = SetUpSemanticKernel(chatModel, textEmbeddingModel, azureAPIEndpoint, azureAPIKey);
+
             SemanticTextMemory memory = SetupSemanticMemoryWithMongoDBStore(mongodbConnectionString, mongodbSearchIndexName, mongodbDatabaseName, kernel);
 
-            // Fetch and save movie documents to the memory store
             await FetchAndSaveMovieDocuments(memory, 100, mongodbConnectionString, mongodbCollectionName);
 
+            await PerformVectorSearchInMongoDB(mongodbCollectionName, memory);
+        }
+        private static void ReadDataFromConfig(out string chatModel, out string textEmbeddingModel, out string azureAPIEndpoint, out string azureAPIKey,out string mongodbConnectionString, out string mongodbSearchIndexName, out string mongodbDatabaseName, out string mongodbCollectionName)
+        {
+            IConfiguration configuration = new ConfigurationBuilder()
+                            .AddJsonFile("appsettings.json")
+                            .Build();
+
+            chatModel = configuration["AzureOpenAI:ChatModel"] ?? throw new ArgumentNullException("AzureOpenAI:ChatModel");
+            textEmbeddingModel = configuration["AzureOpenAI:TextEmbeddingModel"] ?? throw new ArgumentNullException("AzureOpenAI:TextEmbeddingModel");
+            azureAPIEndpoint = configuration["AzureOpenAI:Endpoint"] ?? throw new ArgumentNullException("AzureOpenAI:Endpoint");
+            azureAPIKey = configuration["AzureOpenAI:ApiKey"] ?? throw new ArgumentNullException("AzureOpenAI:ApiKey");
+
+            mongodbConnectionString = configuration["MongoDB:ConnectionString"] ?? throw new ArgumentNullException("MongoDB:ConnectionString");
+            mongodbSearchIndexName = configuration["MongoDB:SearchIndexName"] ?? throw new ArgumentNullException("MongoDB:SearchIndexName");
+            mongodbDatabaseName = configuration["MongoDB:DatabaseName"] ?? throw new ArgumentNullException("MongoDB:DatabaseName");
+            mongodbCollectionName = configuration["MongoDB:CollectionName"] ?? throw new ArgumentNullException("MongoDB:CollectionName");
+        }
+        private static Kernel SetUpSemanticKernel(string chatModel, string textEmbeddingModel, string azureAPIEndpoint, string azureAPIKey)
+        {
+            var builder = Kernel.CreateBuilder();
+
+            // Setup Chat Completion
+            builder.AddAzureOpenAIChatCompletion(
+                            deploymentName: chatModel,
+                            endpoint: azureAPIEndpoint,
+                            apiKey: azureAPIKey
+                        );
+
+            // Setup Text Embedding
+            builder.AddAzureOpenAITextEmbeddingGeneration(
+                            deploymentName: textEmbeddingModel,
+                            endpoint: azureAPIEndpoint,
+                            apiKey: azureAPIKey
+                        );
+
+            return builder.Build();
+        }
+        private static SemanticTextMemory SetupSemanticMemoryWithMongoDBStore(string mongodbConnectionString, string mongodbSearchIndexName, string mongodbDatabaseName, Kernel kernel)
+        {
+            // Setup the MongoDB memory store
+            var mongoDBMemoryStore = new MongoDBMemoryStore(mongodbConnectionString, mongodbDatabaseName, mongodbSearchIndexName);
+
+            // get the embeddings generator service
+            var embeddingGenerator = kernel.Services.GetRequiredService<ITextEmbeddingGenerationService>();
+            var memory = new SemanticTextMemory(mongoDBMemoryStore, embeddingGenerator);
+            return memory;
+        }
+        private static async Task FetchAndSaveMovieDocuments(ISemanticTextMemory memory, int limitSize, string mongodbConnectionString, string mongodbCollectionName)
+        {
+            Console.WriteLine("Memory is ready...");
+            Console.WriteLine("Please wait while we fetch and save movie documents to the memory store..");
+
+            MongoClient mongoClient = new MongoClient(mongodbConnectionString);
+            var movieDB = mongoClient.GetDatabase("sample_mflix");
+            var movieCollection = movieDB.GetCollection<Movie>("movies");
+            List<Movie> movieDocuments;
+
+            Console.WriteLine("-- Fetching documents from MongoDB...");
+
+            movieDocuments = movieCollection.Find(m => m.Plot != null).Limit(limitSize).ToList();
+
+            foreach (var movie in movieDocuments)
+            {
+                try
+                {
+                    Console.WriteLine($"-- Saving movie document: {movie.Title}");
+                    
+                    await memory.SaveReferenceAsync(
+                        collection: mongodbCollectionName,
+                        description: movie.Plot,
+                        text: movie.Plot,
+                        externalId: movie.Title,
+                        externalSourceName: "Sample_Mflix_Movies",
+                        additionalMetadata: movie.Year.ToString());
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+
+                }
+            }
+        }
+        private static async Task PerformVectorSearchInMongoDB(string mongodbCollectionName, SemanticTextMemory memory)
+        {
             Console.WriteLine("Welcome to the Movie Recommendation System!");
             Console.WriteLine("Type 'x' and press Enter to exit.");
             Console.WriteLine("============================================");
@@ -67,91 +149,6 @@ namespace HelloVector
                 }
             }
         }
-
-        private static SemanticTextMemory SetupSemanticMemoryWithMongoDBStore(string mongodbConnectionString, string mongodbSearchIndexName, string mongodbDatabaseName, Kernel kernel)
-        {
-            // Setup the MongoDB memory store
-            var mongoDBMemoryStore = new MongoDBMemoryStore(mongodbConnectionString, mongodbDatabaseName, mongodbSearchIndexName);
-
-            // get the embeddings generator service
-            var embeddingGenerator = kernel.Services.GetRequiredService<ITextEmbeddingGenerationService>();
-            var memory = new SemanticTextMemory(mongoDBMemoryStore, embeddingGenerator);
-            return memory;
-        }
-
-        private static Kernel SetUpSemanticKernel(string chatModel, string textEmbeddingModel, string azureAPIEndpoint, string azureAPIKey)
-        {
-            var builder = Kernel.CreateBuilder();
-
-            // Setup Chat Completion
-            builder.AddAzureOpenAIChatCompletion(
-                            deploymentName: chatModel,
-                            endpoint: azureAPIEndpoint,
-                            apiKey: azureAPIKey
-                        );
-
-            // Setup Text Embedding
-            builder.AddAzureOpenAITextEmbeddingGeneration(
-                            deploymentName: textEmbeddingModel,
-                            endpoint: azureAPIEndpoint,
-                            apiKey: azureAPIKey
-                        );
-
-            return builder.Build();
-        }
-
-        private static void ReadDataFromConfig(out string chatModel, out string textEmbeddingModel, out string azureAPIEndpoint, out string azureAPIKey,out string mongodbConnectionString, out string mongodbSearchIndexName, out string mongodbDatabaseName, out string mongodbCollectionName)
-        {
-            IConfiguration configuration = new ConfigurationBuilder()
-                            .AddJsonFile("appsettings.json")
-                            .Build();
-
-            chatModel = configuration["AzureOpenAI:ChatModel"] ?? throw new ArgumentNullException("AzureOpenAI:ChatModel");
-            textEmbeddingModel = configuration["AzureOpenAI:TextEmbeddingModel"] ?? throw new ArgumentNullException("AzureOpenAI:TextEmbeddingModel");
-            azureAPIEndpoint = configuration["AzureOpenAI:Endpoint"] ?? throw new ArgumentNullException("AzureOpenAI:Endpoint");
-            azureAPIKey = configuration["AzureOpenAI:ApiKey"] ?? throw new ArgumentNullException("AzureOpenAI:ApiKey");
-
-            mongodbConnectionString = configuration["MongoDB:ConnectionString"] ?? throw new ArgumentNullException("MongoDB:ConnectionString");
-            mongodbSearchIndexName = configuration["MongoDB:SearchIndexName"] ?? throw new ArgumentNullException("MongoDB:SearchIndexName");
-            mongodbDatabaseName = configuration["MongoDB:DatabaseName"] ?? throw new ArgumentNullException("MongoDB:DatabaseName");
-            mongodbCollectionName = configuration["MongoDB:CollectionName"] ?? throw new ArgumentNullException("MongoDB:CollectionName");
-        }
-        private static async Task FetchAndSaveMovieDocuments(ISemanticTextMemory memory, int limitSize, string mongodbConnectionString, string mongodbCollectionName)
-        {
-            Console.WriteLine("Memory is ready...");
-            Console.WriteLine("Please wait while we fetch and save movie documents to the memory store..");
-
-            MongoClient mongoClient = new MongoClient(mongodbConnectionString);
-            var movieDB = mongoClient.GetDatabase("sample_mflix");
-            var movieCollection = movieDB.GetCollection<Movie>("movies");
-            List<Movie> movieDocuments;
-
-            Console.WriteLine("-- Fetching documents from MongoDB...");
-
-            movieDocuments = movieCollection.Find(m => m.Plot != null).Limit(limitSize).ToList();
-
-            foreach (var movie in movieDocuments)
-            {
-                try
-                {
-                    Console.WriteLine($"-- Saving movie document: {movie.Title}");
-                    
-                    await memory.SaveReferenceAsync(
-                        collection: mongodbCollectionName,
-                        description: movie.Plot,
-                        text: movie.Plot,
-                        externalId: movie.Title,
-                        externalSourceName: "Sample_Mflix_Movies",
-                        additionalMetadata: movie.Year.ToString());
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex.Message);
-
-                }
-            }
-        }
-
         public class Movie
         {
             [BsonId]
