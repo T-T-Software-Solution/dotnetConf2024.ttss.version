@@ -26,7 +26,9 @@ namespace HelloVector
 
             SemanticTextMemory memory = SetupSemanticMemoryWithMongoDBStore(mongodbConnectionString, mongodbSearchIndexName, mongodbDatabaseName, kernel);
 
-            //await FetchAndSaveMovieDocuments(memory, 100, mongodbConnectionString, mongodbCollectionName);
+            // Uncomment the following line to convert data to vector and save in MongoDB
+            // Run this line only once to avoid inserting duplicate data into the MongoDB collection
+            //await ConvertDataToVectorAndSaveInMongoDB(memory, 1000, mongodbConnectionString, mongodbCollectionName);
 
             await RAGInMongoDB(kernel, mongodbCollectionName, memory);
         }
@@ -76,7 +78,7 @@ namespace HelloVector
             var memory = new SemanticTextMemory(mongoDBMemoryStore, embeddingGenerator);
             return memory;
         }
-        private static async Task FetchAndSaveMovieDocuments(ISemanticTextMemory memory, int limitSize, string mongodbConnectionString, string mongodbCollectionName)
+        private static async Task ConvertDataToVectorAndSaveInMongoDB(ISemanticTextMemory memory, int limitSize, string mongodbConnectionString, string mongodbCollectionName)
         {
             Console.WriteLine("Memory is ready...");
             Console.WriteLine("Please wait while we fetch and save movie documents to the memory store..");
@@ -94,7 +96,7 @@ namespace HelloVector
             {
                 try
                 {
-                    Console.WriteLine($"-- Saving movie document: {movie.Title}");
+                    Console.WriteLine($"-- Converting movie to vector and save in MongoDB: {movie.Title}");
                     
                     await memory.SaveReferenceAsync(
                         collection: mongodbCollectionName,
@@ -113,20 +115,11 @@ namespace HelloVector
         }
         private static async Task RAGInMongoDB(Kernel kernel, string mongodbCollectionName, SemanticTextMemory memory)
         {
-            Console.WriteLine("Welcome to the Movie Recommendation System!");
-            Console.WriteLine("Type 'x' and press Enter to exit.");
-            Console.WriteLine("============================================");
-            Console.WriteLine();
+            DisplayWelcomeRAG();
 
             while (true)
             {
-                Console.WriteLine();
-                Console.WriteLine("Tell me what sort of film you want to watch..");
-                Console.WriteLine();
-
-                Console.Write("> ");
-
-                var userInput = Console.ReadLine();
+                string? userInput = GetUserMovieInput();
 
                 if (userInput.ToLower() == "x")
                 {
@@ -134,62 +127,99 @@ namespace HelloVector
                     break;
                 }
 
-                Console.WriteLine();
+                StringBuilder prompts = await GetMovieCategoryFromUserPrompt(kernel, userInput);
 
-                var response = kernel.InvokePromptStreamingAsync("Convert to only the movie genre in English.: " + userInput);
+                StringBuilder relevantFacts = await PerformVectorSearchAndDisplay(mongodbCollectionName, memory, prompts);
 
-                StringBuilder prompts = new StringBuilder();
-                await foreach (var result in response)
+                var isDataFound = relevantFacts.Length > 0;
+                if (!isDataFound)
                 {
-                    prompts.Append(result);
+                    Console.WriteLine("ไม่พบข้อมูลหนังที่ตรงกับความต้องการของคุณ");
+                    continue;
                 }
 
-                Console.WriteLine();
-                Console.WriteLine($"ประเภทหนังที่คุณเลือกคือ: {prompts.ToString()}");
-                Console.WriteLine();
+                await DisplayRelatedMoviesSummary(kernel, prompts, relevantFacts);
+            }
+        }
+        private static void DisplayWelcomeRAG()
+        {
+            Console.WriteLine("Welcome to the Movie Recommendation System!");
+            Console.WriteLine("Type 'x' and press Enter to exit.");
+            Console.WriteLine("============================================");
+            Console.WriteLine();
+        }
+        private static string GetUserMovieInput()
+        {
+            Console.WriteLine();
+            Console.WriteLine("Tell me what sort of film you want to watch..");
+            Console.WriteLine();
 
-                var memories = memory.SearchAsync(mongodbCollectionName, prompts.ToString(), limit: 3, minRelevanceScore: 0.6);
+            Console.Write("> ");
 
-                Console.WriteLine(String.Format("{0,-20} {1,-50} {2,-10} {3,-15}", "Title", "Plot", "Year", "Relevance (0 - 1)"));
-                Console.WriteLine(new String('-', 95)); // Adjust the length based on your column widths
+            return Console.ReadLine();
+        }
+        private static async Task<StringBuilder> GetMovieCategoryFromUserPrompt(Kernel kernel, string userInput)
+        {
+            var userInputResponses = kernel.InvokePromptStreamingAsync("Convert to only the movie genre in English.: " + userInput);
 
-                StringBuilder relevantFacts = new StringBuilder();
-                await foreach (var mem in memories)
-                {
-                    Console.WriteLine(String.Format("{0,-20} {1,-50} {2,-10} {3,-15}",
-                        mem.Metadata.Id,
-                        mem.Metadata.Description.Length > 47 ? mem.Metadata.Description.Substring(0, 47) + "..." : mem.Metadata.Description, // Truncate long descriptions
-                        mem.Metadata.AdditionalMetadata,
-                        mem.Relevance.ToString("0.00"))); // Format relevance score to two decimal places
+            StringBuilder prompts = new StringBuilder();
+            await foreach (var inputResponse in userInputResponses)
+            {
+                prompts.Append(inputResponse);
+            }
 
-                    relevantFacts.AppendLine($"ชื่อหนัง: {mem.Metadata.Id}, รายละเอียด: {mem.Metadata.Description}");
-                }
+            Console.WriteLine();
+            Console.WriteLine($"ประเภทหนังที่คุณเลือกคือ: {prompts.ToString()}");
+            Console.WriteLine();
+            Console.WriteLine();
+            return prompts;
+        }
+        private static async Task<StringBuilder> PerformVectorSearchAndDisplay(string mongodbCollectionName, SemanticTextMemory memory, StringBuilder prompts)
+        {
+            var memories = memory.SearchAsync(mongodbCollectionName, prompts.ToString(), limit: 3, minRelevanceScore: 0.6);
 
-                Console.WriteLine();
-                Console.WriteLine();
+            Console.WriteLine(String.Format("{0,-20} {1,-50} {2,-10} {3,-15}", "Title", "Plot", "Year", "Relevance (0 - 1)"));
+            Console.WriteLine(new String('-', 95)); // Adjust the length based on your column widths
 
-                // Construct the prompt for the language model
-                var prompt = $@"
+            StringBuilder relevantFacts = new StringBuilder();
+            await foreach (var mem in memories)
+            {
+                Console.WriteLine(String.Format("{0,-20} {1,-50} {2,-10} {3,-15}",
+                    mem.Metadata.Id,
+                    mem.Metadata.Description.Length > 47 ? mem.Metadata.Description.Substring(0, 47) + "..." : mem.Metadata.Description, // Truncate long descriptions
+                    mem.Metadata.AdditionalMetadata,
+                    mem.Relevance.ToString("0.00"))); // Format relevance score to two decimal places
+
+                relevantFacts.AppendLine($"ชื่อหนัง: {mem.Metadata.Id}, รายละเอียด: {mem.Metadata.Description}");
+            }
+
+            Console.WriteLine();
+            Console.WriteLine();
+
+            return relevantFacts;
+        }
+        private static async Task DisplayRelatedMoviesSummary(Kernel kernel, StringBuilder prompts, StringBuilder relevantFacts)
+        {
+            var prompt = $@"
                     Question: สรุปชื่อหนังและเนื้อหาของหนังว่าเกี่ยวกับอะไร เป็นภาษาไทย
 
                     Answer the question using the memory content:
 
-                    ความต้องการ: {userInput}
+                    ความต้องการดูหนังประเภท: {prompts.ToString()}
 
                     ข้อมูลที่เกี่ยวข้อง:   
                     {relevantFacts.ToString()}
 
                     Answer:";
 
-                response = kernel.InvokePromptStreamingAsync(prompt);
-                await foreach (var result in response)
-                {
-                    Console.Write(result);
-                }
-
-                Console.WriteLine();
-                Console.WriteLine();
+            var response = kernel.InvokePromptStreamingAsync(prompt);
+            await foreach (var result in response)
+            {
+                Console.Write(result);
             }
+
+            Console.WriteLine();
+            Console.WriteLine();
         }
         public class Movie
         {
@@ -264,7 +294,6 @@ namespace HelloVector
             [BsonElement("awesome")]
             public bool? Awesome { get; set; }
         }
-
         public class Awards
         {
             [BsonElement("wins")]
@@ -276,7 +305,6 @@ namespace HelloVector
             [BsonElement("text")]
             public string Text { get; set; }
         }
-
         public class Imdb
         {
             [BsonElement("id")]
@@ -288,7 +316,6 @@ namespace HelloVector
             [BsonElement("rating")]
             public object Rating { get; set; }
         }
-
         public class Tomatoes
         {
             [BsonElement("viewer")]
@@ -322,7 +349,6 @@ namespace HelloVector
             public string? Consensus { get; set; }
 
         }
-
         public class Viewer
         {
             [BsonElement("rating")]
@@ -334,7 +360,6 @@ namespace HelloVector
             [BsonElement("meter")]
             public int Meter { get; set; }
         }
-
         public class Critic
         {
             [BsonElement("rating")]
