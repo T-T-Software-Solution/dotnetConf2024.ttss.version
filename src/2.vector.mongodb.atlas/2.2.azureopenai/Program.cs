@@ -28,7 +28,7 @@ namespace HelloVector
 
             // Uncomment the following line to convert data to vector and save in MongoDB
             // Run this line only once to avoid inserting duplicate data into the MongoDB collection
-            //await ConvertDataToVectorAndSaveInMongoDB(memory, 1000, mongodbConnectionString, mongodbCollectionName);
+            //await ConvertDataToVectorAndSaveInMongoDB(memory, 100, mongodbConnectionString, mongodbCollectionName);
 
             await RAGInMongoDB(kernel, mongodbCollectionName, memory);
         }
@@ -90,7 +90,7 @@ namespace HelloVector
 
             Console.WriteLine("-- Fetching documents from MongoDB...");
 
-            movieDocuments = movieCollection.Find(m => m.Plot != null).Limit(limitSize).ToList();
+            movieDocuments = movieCollection.Find(m => m.Fullplot != null).Limit(limitSize).ToList();
 
             foreach (var movie in movieDocuments)
             {
@@ -100,8 +100,8 @@ namespace HelloVector
                     
                     await memory.SaveReferenceAsync(
                         collection: mongodbCollectionName,
-                        description: movie.Plot,
-                        text: movie.Plot,
+                        description: movie.Fullplot,
+                        text: movie.Fullplot,
                         externalId: movie.Title,
                         externalSourceName: "Sample_Mflix_Movies",
                         additionalMetadata: movie.Year.ToString());
