@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "2.1.openai", "src\2.vector.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "2.2.azureopenai", "src\2.vector.mongodb.atlas\2.2.azureopenai\2.2.azureopenai.csproj", "{32A45BFE-17A6-422F-A75C-199C932B6560}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "4.semantickernel.gettingstart", "src\4.semantickernel.gettingstart\4.semantickernel.gettingstart.csproj", "{ED5BA3AA-340B-4775-8FB1-32B7E3DE7E9F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -47,6 +49,10 @@ Global
 		{32A45BFE-17A6-422F-A75C-199C932B6560}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{32A45BFE-17A6-422F-A75C-199C932B6560}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{32A45BFE-17A6-422F-A75C-199C932B6560}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ED5BA3AA-340B-4775-8FB1-32B7E3DE7E9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED5BA3AA-340B-4775-8FB1-32B7E3DE7E9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED5BA3AA-340B-4775-8FB1-32B7E3DE7E9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED5BA3AA-340B-4775-8FB1-32B7E3DE7E9F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -58,6 +64,7 @@ Global
 		{791FB6B3-B87B-40FD-A01B-48C48703B6A1} = {822A8DB8-60CE-4C44-9089-C963BECC508C}
 		{2F71D004-8D41-4178-AAB6-B54D2F00BA23} = {822A8DB8-60CE-4C44-9089-C963BECC508C}
 		{32A45BFE-17A6-422F-A75C-199C932B6560} = {822A8DB8-60CE-4C44-9089-C963BECC508C}
+		{ED5BA3AA-340B-4775-8FB1-32B7E3DE7E9F} = {822A8DB8-60CE-4C44-9089-C963BECC508C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7CB0A261-F2CF-44C1-9127-85C167D21B22}
