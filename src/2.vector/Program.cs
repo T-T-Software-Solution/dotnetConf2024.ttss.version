@@ -198,7 +198,7 @@ namespace HelloVector
         private static async Task RAG(Kernel kernel, string question, List<MemoryQueryResult> queryResults)
         {
             // Prepare the relevant facts for the prompt
-            var relevantFacts = string.Join("\n", queryResults.Select(r => r.Metadata.Description));
+            var relevantFacts = string.Join("\n", queryResults.Select(r => r.Metadata.Text));
 
             // Construct the prompt for the language model
             var prompt = $@"
