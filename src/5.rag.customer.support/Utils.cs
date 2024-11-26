@@ -148,10 +148,20 @@
                 var manualChunks = await productManualService.GetManualChunksAsync(query, ticket.ProductId.Value);
 
                 // [2] Augment prompt with search results
+                var productIdInfo = (await manualChunks.Results.ToListAsync()).FirstOrDefault();
+                var productId = string.Empty;
+                if(productIdInfo != null)
+                {
+                    productId = productIdInfo.Record.ProductId.ToString();
+                }
+                
                 var context = (await manualChunks.Results.ToListAsync()).Select(r => $"- {r.Record.Text}");
 
                 var message = $"""
                 Using the following data sources as context
+
+                ## Product Id
+                {string.Join("\n", productId.Distinct())}
                 
                 ## Context
                 {string.Join("\n", context)}
@@ -161,12 +171,16 @@
                 Answer the user query: {query}
 
                 Response: 
-                """;
+                """;    
+
+                AnsiConsole.MarkupLine($"[bold yellow]{message}[/]");
+                AnsiConsole.MarkupLine("[bold yellow]---------------[/]");
 
                 // [3] Generate response
                 var response = await chatClient.CompleteAsync(message);
+                Console.WriteLine(response);
 
-                AnsiConsole.MarkupLine($"[bold yellow]{response}[/]");
+                //AnsiConsole.MarkupLine($"[bold yellow]{response}[/]");
             }
         }
     }
