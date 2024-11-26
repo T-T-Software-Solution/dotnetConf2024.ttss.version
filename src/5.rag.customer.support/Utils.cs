@@ -49,11 +49,10 @@
         await productManualService.InsertManualChunksAsync(manuals);
     }
 
-    public static void InspectTicket(IEnumerable<Ticket> tickets)
+    private static void SetupTicketInfo(IEnumerable<Ticket> tickets, out Ticket? ticket, out string messageText)
     {
         // User selects ticket
-        var ticket =
-            AnsiConsole.Prompt(
+        ticket = AnsiConsole.Prompt(
                 new SelectionPrompt<Ticket>()
                     .Title("Select ticket")
                     .PageSize(10)
@@ -61,7 +60,6 @@
                     .AddChoices(tickets)
                     .UseConverter(ticket => $"{ticket.TicketId.ToString()} - {ticket.ShortSummary}")
             );
-
         if (ticket == null)
         {
             Console.WriteLine("Ticket not found.");
@@ -70,75 +68,56 @@
         // Tickets formatted for display
         var formattedMessages = ticket.Messages.Select(m =>
             m.IsCustomerMessage ? $"[blue]Customer: {m.Text}[/]" : $"[green]Agent: {m.Text}[/]");
-        var messageText = string.Join("\n", formattedMessages);
+        messageText = string.Join("\n", formattedMessages);
+    }
+    private static void SetupPanelAndDisplay(Ticket? ticket, Panel panel)
+    {
+        panel.Header = new PanelHeader($"Customer Messages for Ticket ID: {ticket.TicketId}");
+        AnsiConsole.Write(panel);
+    }
+
+    public static void InspectTicket(IEnumerable<Ticket> tickets)
+    {
+        Ticket? ticket;
+        string messageText;
+        SetupTicketInfo(tickets, out ticket, out messageText);
 
         // Display tickets
         var panel = new Panel(messageText);
-        panel.Header = new PanelHeader($"Customer Messages for Ticket ID: {ticket.TicketId}");
-        AnsiConsole.Write(panel);
+
+        SetupPanelAndDisplay(ticket, panel);
     }
 
     public static async Task InspectTicketWithAISummaryAsync(IEnumerable<Ticket> tickets, TicketSummarizer summaryGenerator)
     {
-        // User selects ticket
-        var ticket =
-            AnsiConsole.Prompt(
-                new SelectionPrompt<Ticket>()
-                    .Title("Select ticket")
-                    .PageSize(10)
-                    .MoreChoicesText("[grey](Move up and down to reveal more choices)[/]")
-                    .AddChoices(tickets)
-                    .UseConverter(ticket => $"{ticket.TicketId.ToString()} - {ticket.ShortSummary}")
-            );
+        Ticket? ticket;
+        string messageText;
+        SetupTicketInfo(tickets, out ticket, out messageText);
 
-        if (ticket == null)
-        {
-            Console.WriteLine("Ticket not found.");
-        }
-
-        // Tickets formatted for display
-        var formattedMessages = ticket.Messages.Select(m =>
-            m.IsCustomerMessage ? $"[blue]Customer: {m.Text}[/]" : $"[green]Agent: {m.Text}[/]");
-        var messageText = string.Join("\n", formattedMessages);
-
-        // Generate summary
-        var summary = await summaryGenerator.GenerateLongSummaryAsync(messageText);
+        ChatCompletion summary = await GenerateSummary(summaryGenerator, messageText);
 
         // Display tickets
         var panel = new Panel($"[olive]Summary: {summary}[/]\n\n{messageText}");
-        panel.Header = new PanelHeader($"Customer Messages for Ticket ID: {ticket.TicketId}");
-        AnsiConsole.Write(panel);
+
+        SetupPanelAndDisplay(ticket, panel);
+    }
+
+    private static async Task<ChatCompletion> GenerateSummary(TicketSummarizer summaryGenerator, string messageText)
+    {
+        return await summaryGenerator.GenerateLongSummaryAsync(messageText);
     }
 
     public static async Task InspectTicketWithSemanticSearchAsync(IEnumerable<Ticket> tickets, TicketSummarizer summaryGenerator, ProductManualService productManualService, IChatClient chatClient)
     {
-        // User selects ticket
-        var ticket =
-            AnsiConsole.Prompt(
-                new SelectionPrompt<Ticket>()
-                    .Title("Select ticket")
-                    .PageSize(10)
-                    .MoreChoicesText("[grey](Move up and down to reveal more choices)[/]")
-                    .AddChoices(tickets)
-                    .UseConverter(ticket => $"{ticket.TicketId.ToString()} - {ticket.ShortSummary}")
-            );
+        Ticket? ticket;
+        string messageText;
+        SetupTicketInfo(tickets, out ticket, out messageText);
 
-        if (ticket == null)
-        {
-            Console.WriteLine("Ticket not found.");
-        }
-
-        // Tickets formatted for display
-        var formattedMessages = ticket.Messages.Select(m =>
-            m.IsCustomerMessage ? $"[blue]Customer: {m.Text}[/]" : $"[green]Agent: {m.Text}[/]");
-        var messageText = string.Join("\n", formattedMessages);
-
-        // Generate summary
-        var summary = await summaryGenerator.GenerateLongSummaryAsync(messageText);
+        ChatCompletion summary = await GenerateSummary(summaryGenerator, messageText);
 
         var panel = new Panel($"[olive]Summary: {summary}[/]\n\n{messageText}");
-        panel.Header = new PanelHeader($"Customer Messages for Ticket ID: {ticket.TicketId}");
-        AnsiConsole.Write(panel);
+        
+        SetupPanelAndDisplay(ticket, panel);
 
         // Chat loop
         var prompt = AnsiConsole.Prompt(
