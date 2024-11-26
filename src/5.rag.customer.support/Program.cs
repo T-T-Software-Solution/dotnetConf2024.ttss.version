@@ -1,6 +1,10 @@
 ﻿#pragma warning disable
 using Microsoft.SemanticKernel.Connectors.InMemory;
 
+// Use OpenAI chat completion models
+var useAzureOpenAI = true; 
+
+// Configurations for Azure OpenAI and Ollama
 string azureChatModel, azureTextEmbeddingModel, azureAPIEndpoint, azureAPIKey;
 string ollamaChatModel, ollamaTextEmbeddingModel, ollamaAPIEndpoint;
 
@@ -8,11 +12,11 @@ Utils.ReadDataFromConfig(
     out azureChatModel, out azureTextEmbeddingModel, out azureAPIEndpoint, out azureAPIKey,
     out ollamaChatModel, out ollamaTextEmbeddingModel, out ollamaAPIEndpoint);
 
-var useAzureOpenAI = true; // Use OpenAI chat completion models
-
 IChatClient chatClient;
 IEmbeddingGenerator<string, Embedding<float>> embeddingGenerator;
 
+// Create chat client and embedding generator 
+// by selecting the appropriate implementation - Azure OpenAI or Ollama
 if(useAzureOpenAI)
 {
     chatClient = Utils.CreateAzureOpenAIClient(azureAPIEndpoint, azureAPIKey)
@@ -30,8 +34,8 @@ else
 // Configure product manual service
 var vectorStore = new InMemoryVectorStore();
 var productManualService = new ProductManualService(embeddingGenerator, vectorStore, useAzureOpenAI);
-// Ingest manuals
 
+// Ingest manuals manually if not already done
 if (!File.Exists("./data/manual-chunks.json"))
 {
     var manualIngestor = new ManualIngestor(embeddingGenerator);
@@ -65,7 +69,7 @@ while (true)
         //InspectTicket(tickets);
 
         // With AI Summaries
-        // await InspectTicketWithAISummaryAsync(tickets, summaryGenerator);
+        //await InspectTicketWithAISummaryAsync(tickets, summaryGenerator);
 
         // With Semantic Search 
         await InspectTicketWithSemanticSearchAsync(tickets, summaryGenerator, productManualService, chatClient);

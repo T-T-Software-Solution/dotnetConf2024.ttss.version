@@ -27,12 +27,13 @@ public class ManualIngestor
 
         var files = Directory.GetFiles(sourceDir, "*.pdf");
 
-        var fileLimited = 10;
-        var fileNo = 0;
+        //var fileLimited = 10;
+        //var fileNo = 0;
+        
         // Loop over each PDF file
         foreach (var file in files)
         {
-            if(fileNo++ > fileLimited) break;
+            //if(fileNo++ > fileLimited) break;
 
             Console.WriteLine($"Generating chunks for {file}...");
 
