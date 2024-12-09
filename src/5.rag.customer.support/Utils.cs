@@ -1,6 +1,7 @@
 ﻿public static class Utils
 {
     public static void ReadDataFromConfig(
+        out bool useAzureOpenAI,
         out string azureChatModel, out string azureTextEmbeddingModel, out string azureAPIEndpoint, out string azureAPIKey,
         out string ollamaChatModel, out string ollamaTextEmbeddingModel, out string ollamaAPIEndpoint)
     
@@ -8,6 +9,8 @@
         IConfiguration configuration = new ConfigurationBuilder()
                         .AddJsonFile("appsettings.json")
                         .Build();
+
+        useAzureOpenAI = bool.Parse(configuration["useAzureOpenAI"] ?? throw new ArgumentNullException("useAzureOpenAI"));
 
         azureChatModel = configuration["AzureOpenAI:ChatModel"] ?? throw new ArgumentNullException("AzureOpenAI:ChatModel");
         azureTextEmbeddingModel = configuration["AzureOpenAI:TextEmbeddingModel"] ?? throw new ArgumentNullException("AzureOpenAI:TextEmbeddingModel");
@@ -58,7 +61,7 @@
                     .PageSize(10)
                     .MoreChoicesText("[grey](Move up and down to reveal more choices)[/]")
                     .AddChoices(tickets)
-                    .UseConverter(ticket => $"{ticket.TicketId.ToString()} - {ticket.ShortSummary}")
+                    .UseConverter(ticket => $"{ticket.TicketId.ToString()} - ({ticket.TicketStatus}) {ticket.ShortSummary}")
             );
         if (ticket == null)
         {
@@ -67,7 +70,7 @@
 
         // Tickets formatted for display
         var formattedMessages = ticket.Messages.Select(m =>
-            m.IsCustomerMessage ? $"[blue]Customer: {m.Text}[/]" : $"[green]Agent: {m.Text}[/]");
+            m.IsCustomerMessage ? $"\n[blue]ลูกค้า: {m.Text}[/]" : $"\n[green]เจ้าหน้าที่: {m.Text}[/]");
         messageText = string.Join("\n", formattedMessages);
     }
     private static void SetupPanelAndDisplay(Ticket? ticket, Panel panel)
@@ -115,7 +118,7 @@
 
         ChatCompletion summary = await GenerateSummary(summaryGenerator, messageText);
 
-        var panel = new Panel($"[olive]Summary: {summary}[/]\n\n{messageText}");
+        var panel = new Panel($"[olive]{messageText}\n\nAI สรุปให้ว่า: {summary}[/]");
         
         SetupPanelAndDisplay(ticket, panel);
 
@@ -148,41 +151,42 @@
                 var manualChunks = await productManualService.GetManualChunksAsync(query, ticket.ProductId.Value);
 
                 // [2] Augment prompt with search results
-                var productIdInfo = (await manualChunks.Results.ToListAsync()).FirstOrDefault();
-                var productId = string.Empty;
-                if(productIdInfo != null)
-                {
-                    productId = productIdInfo.Record.ProductId.ToString();
-                }
-                
                 var context = (await manualChunks.Results.ToListAsync()).Select(r => $"- {r.Record.Text}");
+                var contextString = string.Join("\n", context);
+                AnsiConsole.MarkupLine($"\n[bold blue]สิ่งที่ต้องการสืบค้นเพิ่มเติม[/]");
+                AnsiConsole.MarkupLine("[bold blue]---------------[/]");
+                AnsiConsole.MarkupLine($"[blue]{query}[/]");
+
+                AnsiConsole.MarkupLine($"\n[bold yellow]ข้อมูลที่ระบบหาเจอจาก PDF Files[/]");
+                AnsiConsole.MarkupLine("[bold yellow]---------------[/]");
+                AnsiConsole.MarkupLine($"[yellow]Product Id: {ticket.ProductId.Value}[/]");
+                AnsiConsole.MarkupLine($"[yellow]\nเนื้อหาจาก PDF ที่เกี่ยวข้องจากการค้นหาด้วย Vector Search[/]");
+                AnsiConsole.MarkupLine($"[yellow]{contextString}[/]");
 
                 var message = $"""
+
                 Using the following data sources as context
 
-                ## Product Id
-                {string.Join("\n", productId.Distinct())}
-                
                 ## Context
-                {string.Join("\n", context)}
+                {contextString}
 
                 ## Instruction
 
                 Answer the user query: {query}
 
-                Response: 
-
                 ให้ตอบเป็นภาษาไทยทั้งหมดเท่าที่เป็นไปได้
+                Response: 
+                
                 """;    
-
-                AnsiConsole.MarkupLine($"[bold yellow]{message}[/]");
-                AnsiConsole.MarkupLine("[bold yellow]---------------[/]");
 
                 // [3] Generate response
                 var response = await chatClient.CompleteAsync(message);
-                Console.WriteLine(response);
 
-                //AnsiConsole.MarkupLine($"[bold yellow]{response}[/]");
+                AnsiConsole.MarkupLine($"\n[bold green]ผลลัพธ์ที่ได้[/]");
+                AnsiConsole.MarkupLine("[bold green]---------------[/]");
+                AnsiConsole.MarkupLine($"[green]{response}[/]");
+
+                Console.WriteLine(message);
             }
         }
     }

@@ -43,6 +43,8 @@
 
             Write a summary that is up to 30 words long, condensing as much distinctive information as possible.
 
+            ตอบเป็นภาษาไทย
+
             Summary: 
             """;
     }

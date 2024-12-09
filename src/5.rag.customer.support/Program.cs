@@ -4,14 +4,14 @@ using Microsoft.SemanticKernel.Connectors.InMemory;
 // Load tickets and manuals
 var tickets = Utils.LoadTickets("./data/tickets.json");
 
-// Use OpenAI chat completion models
-var useAzureOpenAI = true; 
 
 // Configurations for Azure OpenAI and Ollama
+bool useAzureOpenAI;
 string azureChatModel, azureTextEmbeddingModel, azureAPIEndpoint, azureAPIKey;
 string ollamaChatModel, ollamaTextEmbeddingModel, ollamaAPIEndpoint;
 
 Utils.ReadDataFromConfig(
+    out useAzureOpenAI,
     out azureChatModel, out azureTextEmbeddingModel, out azureAPIEndpoint, out azureAPIKey,
     out ollamaChatModel, out ollamaTextEmbeddingModel, out ollamaAPIEndpoint);
 
