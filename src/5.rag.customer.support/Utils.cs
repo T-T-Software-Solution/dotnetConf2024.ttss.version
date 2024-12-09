@@ -73,36 +73,11 @@
             m.IsCustomerMessage ? $"\n[blue]ลูกค้า: {m.Text}[/]" : $"\n[green]เจ้าหน้าที่: {m.Text}[/]");
         messageText = string.Join("\n", formattedMessages);
     }
+    
     private static void SetupPanelAndDisplay(Ticket? ticket, Panel panel)
     {
         panel.Header = new PanelHeader($"Customer Messages for Ticket ID: {ticket.TicketId}");
         AnsiConsole.Write(panel);
-    }
-
-    public static void InspectTicket(IEnumerable<Ticket> tickets)
-    {
-        Ticket? ticket;
-        string messageText;
-        SetupTicketInfo(tickets, out ticket, out messageText);
-
-        // Display tickets
-        var panel = new Panel(messageText);
-
-        SetupPanelAndDisplay(ticket, panel);
-    }
-
-    public static async Task InspectTicketWithAISummaryAsync(IEnumerable<Ticket> tickets, TicketSummarizer summaryGenerator)
-    {
-        Ticket? ticket;
-        string messageText;
-        SetupTicketInfo(tickets, out ticket, out messageText);
-
-        ChatCompletion summary = await GenerateSummary(summaryGenerator, messageText);
-
-        // Display tickets
-        var panel = new Panel($"[olive]Summary: {summary}[/]\n\n{messageText}");
-
-        SetupPanelAndDisplay(ticket, panel);
     }
 
     private static async Task<ChatCompletion> GenerateSummary(TicketSummarizer summaryGenerator, string messageText)

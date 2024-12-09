@@ -66,12 +66,6 @@ while (true)
 
     if (prompt == "Inspect ticket")
     {
-        // No AI
-        //Utils.InspectTicket(tickets);
-
-        // With AI Summaries
-        //await Utils.InspectTicketWithAISummaryAsync(tickets, summaryGenerator);
-
         // With Semantic Search 
         await Utils.InspectTicketWithSemanticSearchAsync(tickets, summaryGenerator, productManualService, chatClient);
     }
