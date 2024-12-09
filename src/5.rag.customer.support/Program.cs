@@ -1,6 +1,9 @@
 ﻿#pragma warning disable
 using Microsoft.SemanticKernel.Connectors.InMemory;
 
+// Load tickets and manuals
+var tickets = Utils.LoadTickets("./data/tickets.json");
+
 // Use OpenAI chat completion models
 var useAzureOpenAI = true; 
 
@@ -19,21 +22,16 @@ IEmbeddingGenerator<string, Embedding<float>> embeddingGenerator;
 // by selecting the appropriate implementation - Azure OpenAI or Ollama
 if(useAzureOpenAI)
 {
-    chatClient = Utils.CreateAzureOpenAIClient(azureAPIEndpoint, azureAPIKey)
-        .AsChatClient(azureChatModel);
-        
-    embeddingGenerator = Utils.CreateAzureOpenAIClient(azureAPIEndpoint, azureAPIKey)
-        .AsEmbeddingGenerator(azureTextEmbeddingModel);
+    var azureAI = Utils.CreateAzureOpenAIClient(azureAPIEndpoint, azureAPIKey);
+    
+    chatClient = azureAI.AsChatClient(azureChatModel);
+    embeddingGenerator = azureAI.AsEmbeddingGenerator(azureTextEmbeddingModel);
 }
 else
 {
     chatClient = new OllamaApiClient(new Uri(ollamaAPIEndpoint), ollamaChatModel);
     embeddingGenerator = new OllamaApiClient(new Uri(ollamaAPIEndpoint), ollamaTextEmbeddingModel);
 }
-
-// Configure product manual service
-var vectorStore = new InMemoryVectorStore();
-var productManualService = new ProductManualService(embeddingGenerator, vectorStore, useAzureOpenAI);
 
 // Ingest manuals manually if not already done
 if (!File.Exists("./data/manual-chunks.json"))
@@ -42,9 +40,12 @@ if (!File.Exists("./data/manual-chunks.json"))
     await manualIngestor.RunAsync("./data/manuals", "./data");
 }
 
-// Load tickets and manuals
-var tickets = LoadTickets("./data/tickets.json");
-LoadManualsIntoVectorStore("./data/manual-chunks.json", productManualService);
+// Configure product manual service
+var vectorStore = new InMemoryVectorStore();
+var productManualService = new ProductManualService(embeddingGenerator, vectorStore, useAzureOpenAI);
+
+// Load manuals
+Utils.LoadManualsIntoVectorStore("./data/manual-chunks.json", productManualService);
 
 // Service configurations
 var summaryGenerator = new TicketSummarizer(chatClient);
@@ -66,12 +67,12 @@ while (true)
     if (prompt == "Inspect ticket")
     {
         // No AI
-        //InspectTicket(tickets);
+        //Utils.InspectTicket(tickets);
 
         // With AI Summaries
-        //await InspectTicketWithAISummaryAsync(tickets, summaryGenerator);
+        //await Utils.InspectTicketWithAISummaryAsync(tickets, summaryGenerator);
 
         // With Semantic Search 
-        await InspectTicketWithSemanticSearchAsync(tickets, summaryGenerator, productManualService, chatClient);
+        await Utils.InspectTicketWithSemanticSearchAsync(tickets, summaryGenerator, productManualService, chatClient);
     }
 }

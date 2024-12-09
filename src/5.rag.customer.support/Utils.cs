@@ -171,6 +171,8 @@
                 Answer the user query: {query}
 
                 Response: 
+
+                ให้ตอบเป็นภาษาไทยทั้งหมดเท่าที่เป็นไปได้
                 """;    
 
                 AnsiConsole.MarkupLine($"[bold yellow]{message}[/]");

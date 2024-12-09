@@ -50,7 +50,7 @@ public class ManualIngestor
 
                 // [2] Chunk (split into shorter strings on natural boundaries)
                 var paragraphs = TextChunker.SplitPlainTextParagraphs([page.Text], 200);
-
+                
                 // [3] Embed (string -> embedding)
                 var paragraphsWithEmbeddings = await _embeddingGenerator.GenerateAndZipAsync(paragraphs);
 
