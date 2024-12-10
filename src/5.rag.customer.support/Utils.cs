@@ -128,15 +128,6 @@
                 // [2] Augment prompt with search results
                 var context = (await manualChunks.Results.ToListAsync()).Select(r => $"- {r.Record.Text}");
                 var contextString = string.Join("\n", context);
-                AnsiConsole.MarkupLine($"\n[bold blue]สิ่งที่ต้องการสืบค้นเพิ่มเติม[/]");
-                AnsiConsole.MarkupLine("[bold blue]---------------[/]");
-                AnsiConsole.MarkupLine($"[blue]{query}[/]");
-
-                AnsiConsole.MarkupLine($"\n[bold yellow]ข้อมูลที่ระบบหาเจอจาก PDF Files[/]");
-                AnsiConsole.MarkupLine("[bold yellow]---------------[/]");
-                AnsiConsole.MarkupLine($"[yellow]Product Id: {ticket.ProductId.Value}[/]");
-                AnsiConsole.MarkupLine($"[yellow]\nเนื้อหาจาก PDF ที่เกี่ยวข้องจากการค้นหาด้วย Vector Search[/]");
-                AnsiConsole.MarkupLine($"[yellow]{contextString}[/]");
 
                 var message = $"""
 
@@ -156,12 +147,28 @@
 
                 // [3] Generate response
                 var response = await chatClient.CompleteAsync(message);
+                
+                // [3.1] Display User Prompt
+                AnsiConsole.MarkupLine($"\n[bold blue]สิ่งที่ต้องการสืบค้นเพิ่มเติม[/]");
+                AnsiConsole.MarkupLine("[bold blue]---------------[/]");
+                AnsiConsole.MarkupLine($"[blue]{query}[/]");
 
+                // [3.2] Display Result
                 AnsiConsole.MarkupLine($"\n[bold green]ผลลัพธ์ที่ได้[/]");
                 AnsiConsole.MarkupLine("[bold green]---------------[/]");
                 AnsiConsole.MarkupLine($"[green]{response}[/]");
 
-                Console.WriteLine(message);
+                // [3.3] Display PDF Content from Vector Search
+                AnsiConsole.MarkupLine($"\n[bold yellow]ข้อมูลที่ระบบหาเจอจาก PDF Files[/]");
+                AnsiConsole.MarkupLine("[bold yellow]---------------[/]");
+                AnsiConsole.MarkupLine($"[yellow]Product Id: {ticket.ProductId.Value}[/]");
+                AnsiConsole.MarkupLine($"[yellow]\nเนื้อหาจาก PDF ที่เกี่ยวข้องจากการค้นหาด้วย Vector Search[/]");
+                AnsiConsole.MarkupLine($"[yellow]{contextString}[/]");
+
+                // [3.4] Display RAG Prompt
+                AnsiConsole.MarkupLine($"\n[bold Purple]Prompt ที่ส่งไปหา Chat Completion Model[/]");
+                AnsiConsole.MarkupLine("[bold Purple]---------------[/]");
+                AnsiConsole.MarkupLine($"[Purple]{message}[/]");
             }
         }
     }
