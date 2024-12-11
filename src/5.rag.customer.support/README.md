@@ -1,78 +1,78 @@
-# Customer Support 
+# แหล่งอ้างอิง
+เนื้อหาในบทความนี้เป็นการนำตัวอย่างที่ Microsoft เตรียมไว้ในการ Demo Chat App เพื่อจำลองการ Support ลูกค้าในการตอบคำถามทางด้านผลิตภัณฑ์นะครับ
 
-This sample is a C# console application that uses Generative AI services like Ollama or Azure OpenAI to:
+- [เนื้อหาต้นทาง](https://github.com/dotnet/ai-samples/tree/main/src/chat/CustomerSupport)
 
-- Generate customer support ticket summaries
-- Generate embeddings for product manuals
-- Perform semantic search over product manuals
+รวมถึงมี Video อธิบายไว้ที่นี้ครับ
+- [Video นาทีที่ 12:36 นะครับ](https://www.youtube.com/watch?v=0btB9W04y0Q&t=756s)
 
-## Project structure
+# Customer Support (ไทย)
 
-- *ManualIngestor.cs* - Ingestion service that extracts data from product manual PDF files, chunks text into smaller segments, generates embeddings, saves them to a JSON file.
-- *ProductManualService.cs* - Storage service that uses an `IVectorStore` to save and search product manual embeddings.
-- *TicketSummarizer* - AI service which uses an AI model to generate summaries of customer support tickets.
+ตัวอย่างนี้เป็น C# console application ที่ใช้ Generative AI services เช่น Ollama หรือ Azure OpenAI เพื่อ:
 
-## Requirements
+- สร้างสรุปสำหรับ customer support tickets  
+- สร้าง embeddings สำหรับคู่มือผลิตภัณฑ์  
+- ทำ semantic search บนคู่มือผลิตภัณฑ์  
 
-- [.NET 8 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
-- [Ollama](https://ollama.com/download)
-- (Optional) Azure subscription. [Create one for free](https://azure.microsoft.com/free/cognitive-services?azure-portal=true).
+## โครงสร้างโปรเจกต์
 
-## Quick Start
+- **ManualIngestor.cs** - Service สำหรับการ ingestion ที่ใช้ดึงข้อมูลจากไฟล์ PDF ของคู่มือผลิตภัณฑ์, แบ่งข้อความออกเป็นส่วนเล็ก ๆ, สร้าง embeddings และบันทึกเป็นไฟล์ JSON  
+- **ProductManualService.cs** - Service สำหรับการจัดเก็บที่ใช้ `IVectorStore` เพื่อบันทึกและค้นหา embeddings ของคู่มือผลิตภัณฑ์  
+- **TicketSummarizer** - AI service ที่ใช้โมเดล AI เพื่อสร้างสรุปสำหรับ customer support tickets  
 
-Get started setting up your environment using either GitHub Codespaces or Dev Containers.
+## ความต้องการระบบ
 
-| Environment | Codespaces | DevContainer |
-| --- | --- | --- |
-| GPU (Recommended) | N/A | Coming Soon | 
-| CPU | [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/luisquintanilla/ai-samples/tree/customer-support-sample?devcontainer_path=.devcontainer%2Follama-cpu%2Fdevcontainer.json&machine=premiumLinux) | Coming soon |
+- [.NET 8 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)  
+- [Ollama - Local LLMs](https://ollama.com/download)  
+- [Azure Subscription - Cloud LLMs](https://azure.microsoft.com/free/cognitive-services?azure-portal=true)  
 
-## Configuration
+## การตั้งค่า (Configuration)
 
-For this application, you can either use local language and embedding models with Ollama or models hosted on Azure OpenAI. 
+สำหรับแอปพลิเคชันนี้ สามารถใช้โมเดลภาษาและ embedding แบบ local ผ่าน Ollama หรือโมเดลที่โฮสต์บน Azure OpenAI  
 
 ### Ollama
 
-1. Download [llama3.2](https://ollama.com/library/llama3.2) language model
+1. ดาวน์โหลดโมเดลภาษา [llama3.2](https://ollama.com/library/llama3.2):
 
     ```bash
     ollama pull llama3.2
     ```
 
-1. Download [all-minilm](https://ollama.com/library/all-minilm) embedding model
+2. ดาวน์โหลดโมเดล embedding [all-minilm](https://ollama.com/library/all-minilm):
 
     ```bash
     ollama pull all-minilm
     ```
 
-1. In *Program.cs*, depending on what you want to use the model for set:
-
-    - `useOpenAIChat` to `false`
-    - `useOpenAIEmbeddings` to `false`
+3. ในไฟล์ `appsettings.json` ตั้งค่าดังนี้:
+    ```json
+    `useAzureOpenAI : false`
+    
+    "Ollama": {
+        "ChatModel": "llama3.2",
+        "TextEmbeddingModel": "all-minilm",
+        "Endpoint": "http://localhost:11434/"
+    }
+    ```
 
 ### Azure OpenAI
 
-1. Deploy a chat and embedding model. For more details, [see the Azure OpenAI documentation](https://learn.microsoft.com/azure/ai-services/openai/how-to/create-resource?pivots=web-portal#deploy-a-model).
+1. Deploy โมเดล chat และ embedding สำหรับรายละเอียดเพิ่มเติม [ดูเอกสาร Azure OpenAI](https://learn.microsoft.com/azure/ai-services/openai/how-to/create-resource?pivots=web-portal#deploy-a-model)  
+    - **chat** - โมเดลภาษาที่รองรับการสนทนา (เช่น `gpt-4o-mini`)  
+    - **embedding** - โมเดล embedding (เช่น `text-embedding-3-small`)  
+
+    หากคุณใช้ชื่อ deployment ต่างจาก *chat* และ *embedding* อัปเดตชื่อใน `appsettings.json`  
+
+2. ใน *Program.cs* ตั้งค่าดังนี้:
+    - `useAzureOpenAI : true`
+  - 
+    ```json
+    `useAzureOpenAI : true`
     
-    - **chat** - A language model that supports chat. (i.e. `gpt-35-turbo`)
-    - **embedding** - An embedding model. (i.e. `text-embedding-3-small`)
-
-    See the Azure OpenAI documentation for a full [list of models available](https://learn.microsoft.com/azure/ai-services/openai/concepts/models). 
-
-    If you use deployment names other than *chat* and *embedding*, update them in `Program.cs`;
-
-1. In *Program.cs*, depending on what you want to use the model for set: 
-
-    - `useOpenAIChat` to `true`
-    - `useOpenAIEmbeddings` to `true`
-
-1. Configure environment variables for your endpoint and key. For more details, [see the Azure OpenAI documentation](https://learn.microsoft.com/azure/ai-services/openai/chatgpt-quickstart?tabs=command-line%2Cpython-new&pivots=programming-language-csharp#retrieve-key-and-endpoint).
-    - **AZURE_OPENAI_ENDPOINT** - Your Azure OpenAI endpoint.
-    - **AZURE_OPENAI_KEY** - Your Azure OpenAI Key.
-
-#### Using managed identity (Recommended)
-
-By using a managed identity from Microsoft Entra, your application can easily access protected Azure OpenAI resources without having to manually provision or rotate any secrets.
-
-1. Assign Azure OpenAI user role to your managed identity. For more details, see [the documentation](https://learn.microsoft.com/dotnet/ai/how-to/app-service-aoai-auth?pivots=azure-portal#add-an-azure-openai-user-role-to-your-managed-identity).  
-1. In *Program.cs*, set `useManagedIdentity` to `true`.
+    "AzureOpenAI": {
+        "ChatModel": "gpt-4o-mini",
+        "TextEmbeddingModel": "text-embedding-3-small",
+        "Endpoint": "{Azure Endpoint}",
+        "ApiKey": "{Azure API Key}"
+    }
+    ```
