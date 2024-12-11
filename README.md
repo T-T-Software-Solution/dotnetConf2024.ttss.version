@@ -22,7 +22,7 @@
 - [บันทึกความเข้าใจจากการเรียนรู้การใช้งาน Semantic Kernel in C# ร่วมกับ MongoDB Atlas Vector Search และ MongoDB Compass](https://medium.com/t-t-software-solution/%E0%B8%9A%E0%B8%B1%E0%B8%99%E0%B8%97%E0%B8%B6%E0%B8%81%E0%B8%84%E0%B8%A7%E0%B8%B2%E0%B8%A1%E0%B9%80%E0%B8%82%E0%B9%89%E0%B8%B2%E0%B9%83%E0%B8%88%E0%B8%88%E0%B8%B2%E0%B8%81%E0%B8%81%E0%B8%B2%E0%B8%A3%E0%B9%80%E0%B8%A3%E0%B8%B5%E0%B8%A2%E0%B8%99%E0%B8%A3%E0%B8%B9%E0%B9%89%E0%B8%81%E0%B8%B2%E0%B8%A3%E0%B9%83%E0%B8%8A%E0%B9%89%E0%B8%87%E0%B8%B2%E0%B8%99-semantic-kernel-in-c-%E0%B8%A3%E0%B9%88%E0%B8%A7%E0%B8%A1%E0%B8%81%E0%B8%B1%E0%B8%9A-mongodb-atlas-vector-search-206703c27a62)
   - [Source Code](./src/2.vector.mongodb.atlas/)
  
-- จำลอง RAG กับ PDF ด้วยตัวอย่าง Customer Support (กำลังจัดทำ)
+- [จำลอง RAG กับ PDF ด้วยตัวอย่าง Customer Support รองรับภาษาไทย](https://medium.com/t-t-software-solution/rag-for-pdf-files-5746f9b3311a)
 
   - [Source Code](./src/5.rag.customer.support/)
 
