@@ -1,10 +1,6 @@
 ﻿#pragma warning disable
 using Microsoft.SemanticKernel.Connectors.InMemory;
 
-// Load tickets and manuals
-var tickets = Utils.LoadTickets("./data/tickets.json");
-
-
 // Configurations for Azure OpenAI and Ollama
 bool useAzureOpenAI;
 string azureChatModel, azureTextEmbeddingModel, azureAPIEndpoint, azureAPIKey;
@@ -43,6 +39,9 @@ if (!File.Exists("./data/manual-chunks.json"))
 // Configure product manual service
 var vectorStore = new InMemoryVectorStore();
 var productManualService = new ProductManualService(embeddingGenerator, vectorStore, useAzureOpenAI);
+
+// Load tickets
+var tickets = Utils.LoadTickets("./data/tickets.json");
 
 // Load manuals
 Utils.LoadManualsIntoVectorStore("./data/manual-chunks.json", productManualService);
