@@ -21,18 +21,9 @@ class Program
         AzureOpenAIClient azureAI;
         IChatClient azureChatClient, ollamaChatClient;
         IEmbeddingGenerator<string, Embedding<float>> azureEmbeddingGenerator, ollamaEmbeddingGenerator;
+        PrepareLLMs(azureChatModel, azureTextEmbeddingModel, azureAPIEndpoint, azureAPIKey, ollamaChatModel, ollamaTextEmbeddingModel, ollamaAPIEndpoint, 
+            out azureAI, out azureChatClient, out ollamaChatClient, out azureEmbeddingGenerator, out ollamaEmbeddingGenerator);
 
-        // Step 1: Data Preparation
-        // Create chat client and embedding generator for Azure OpenAI
-        azureAI = Utils.CreateAzureOpenAIClient(azureAPIEndpoint, azureAPIKey);
-        azureChatClient = azureAI.AsChatClient(azureChatModel);
-        azureEmbeddingGenerator = azureAI.AsEmbeddingGenerator(azureTextEmbeddingModel);
-
-
-        // Create chat client and embedding generator for Ollama
-        ollamaChatClient = new OllamaApiClient(new Uri(ollamaAPIEndpoint), ollamaChatModel);
-        ollamaEmbeddingGenerator = new OllamaApiClient(new Uri(ollamaAPIEndpoint), ollamaTextEmbeddingModel);
-        
 
         // // Configure product manual service
         // var vectorStore = new InMemoryVectorStore();
@@ -84,7 +75,49 @@ class Program
         }
     }
 
+    private static void PrepareLLMs(string azureChatModel, string azureTextEmbeddingModel, string azureAPIEndpoint, string azureAPIKey, string ollamaChatModel, string ollamaTextEmbeddingModel, string ollamaAPIEndpoint, 
+        out AzureOpenAIClient azureAI, out IChatClient azureChatClient, out IChatClient ollamaChatClient, 
+        out IEmbeddingGenerator<string, Embedding<float>> azureEmbeddingGenerator, out IEmbeddingGenerator<string, Embedding<float>> ollamaEmbeddingGenerator)
+    {
+        // Step 1: Data Preparation
+        // Create chat client and embedding generator for Azure OpenAI
+        azureAI = Utils.CreateAzureOpenAIClient(azureAPIEndpoint, azureAPIKey);
+        azureChatClient = azureAI.AsChatClient(azureChatModel);
+        azureEmbeddingGenerator = azureAI.AsEmbeddingGenerator(azureTextEmbeddingModel);
+
+        // Create chat client and embedding generator for Ollama
+        ollamaChatClient = new OllamaApiClient(new Uri(ollamaAPIEndpoint), ollamaChatModel);
+        ollamaEmbeddingGenerator = new OllamaApiClient(new Uri(ollamaAPIEndpoint), ollamaTextEmbeddingModel);
+    }
+
     private static async Task ReadPDFAndConvertVector(string stepName, IEmbeddingGenerator<string, Embedding<float>> embeddingGenerator, bool isAzure, bool isEnglish)
+    {
+        Stopwatch stopwatch;
+
+        LogStart(stepName, out stopwatch);
+
+        try
+        {
+            string pdfManualPath = isEnglish ? "manuals" : "manuals_thai";
+            string pdfFilePath = Path.Combine("data", pdfManualPath);
+
+            string llmProvider = isAzure ? "azure" : "ollama";
+            string language = isEnglish ? "english" : "thai";
+            string chunkFilePath = Path.Combine("data", $"manual-chunks-{llmProvider}-{language}.json");
+
+            var manualIngestor = new ManualIngestor(embeddingGenerator);
+            await manualIngestor.RunAsync(pdfFilePath, "./data", chunkFilePath);
+        }
+        catch (Exception ex)
+        {
+            LogError(stepName, stopwatch, ex);
+
+            throw;
+        }
+
+        LogEnd(stepName, stopwatch);
+    }
+    private static async Task RAG(string stepName, IEmbeddingGenerator<string, Embedding<float>> embeddingGenerator, bool isAzure, bool isEnglish)
     {
         Stopwatch stopwatch;
 
