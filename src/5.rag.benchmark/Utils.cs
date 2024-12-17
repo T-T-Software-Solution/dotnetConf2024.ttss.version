@@ -43,9 +43,8 @@
         await productManualService.InsertManualChunksAsync(manuals);
     }
 
-    public static async Task RAGAsync(IEnumerable<Ticket> tickets, TicketSummarizer summaryGenerator, ProductManualService productManualService, IChatClient chatClient)
+    public static async Task RAGAsync(ProductManualService productManualService, IChatClient chatClient, string prompt)
     {
-        var prompt = "URL";
         var ticketId = 104;
         // RAG loop
         // [1] Search for relevant documents
@@ -75,20 +74,18 @@
         var response = await chatClient.CompleteAsync(message);
 
         // [3.1] Display User Prompt
-        AnsiConsole.MarkupLine($"\n[bold blue]สิ่งที่ต้องการสืบค้นเพิ่มเติม[/]");
-        AnsiConsole.MarkupLine("[bold blue]---------------[/]");
-        AnsiConsole.MarkupLine($"[blue]{prompt}[/]");
+        Console.WriteLine($"{Environment.NewLine}สิ่งที่ต้องการสืบค้นเพิ่มเติม");
+        Console.WriteLine("---------------");
+        Console.WriteLine($"{prompt}");
 
         // [3.2] Display Result
-        AnsiConsole.MarkupLine($"\n[bold green]ผลลัพธ์ที่ได้[/]");
-        AnsiConsole.MarkupLine("[bold green]---------------[/]");
-        AnsiConsole.MarkupLine($"[green]{response}[/]");
+        Console.WriteLine($"{Environment.NewLine}ผลลัพธ์ที่ได้");
+        Console.WriteLine("---------------");
+        Console.WriteLine($"{response}");
 
         // [3.3] Display PDF Content from Vector Search
-        AnsiConsole.MarkupLine($"\n[bold yellow]ข้อมูลที่ระบบหาเจอจาก PDF Files[/]");
-        AnsiConsole.MarkupLine("[bold yellow]---------------[/]");
-        AnsiConsole.MarkupLine($"[yellow]Product Id: {ticketId}[/]");
-        AnsiConsole.MarkupLine($"[yellow]\nเนื้อหาจาก PDF ที่เกี่ยวข้องจากการค้นหาด้วย Vector Search[/]");
-        AnsiConsole.MarkupLine($"[yellow]{contextString}[/]");
+        Console.WriteLine($"{Environment.NewLine}เนื้อหาจาก PDF ที่เกี่ยวข้องจากการค้นหาด้วย Vector Search");
+        Console.WriteLine("---------------");
+        Console.WriteLine($"{contextString}");
     }
 }

@@ -24,20 +24,6 @@ class Program
         PrepareLLMs(azureChatModel, azureTextEmbeddingModel, azureAPIEndpoint, azureAPIKey, ollamaChatModel, ollamaTextEmbeddingModel, ollamaAPIEndpoint, 
             out azureAI, out azureChatClient, out ollamaChatClient, out azureEmbeddingGenerator, out ollamaEmbeddingGenerator);
 
-
-        // // Configure product manual service
-        // var vectorStore = new InMemoryVectorStore();
-        // var productManualService = new ProductManualService(azureEmbeddingGenerator, vectorStore, true);
-
-        // // Load tickets
-        // var tickets = Utils.LoadTickets("./data/tickets.json");
-
-        // // Load manuals
-        // Utils.LoadManualsIntoVectorStore("./data/manual-chunks.json", productManualService);
-
-        // // Service configurations
-        // var summaryGenerator = new TicketSummarizer(azureChatClient);
-
         bool skipEmbed = false;
 
         // Parse arguments
@@ -63,7 +49,24 @@ class Program
                 string skipLog = LogMessage("INFO", "Step1_Azure OpenAI Read PDF English and convert Vector", "Skipped embedding step. Using previously generated data.");
                 LogToFile(skipLog);
                 Console.WriteLine(skipLog);
+
+                string skipLog2 = LogMessage("INFO", "Step2_Azure OpenAI Read PDF Thai and convert Vector", "Skipped embedding step. Using previously generated data.");
+                LogToFile(skipLog2);
+                Console.WriteLine(skipLog2);
+
+                string skipLog3 = LogMessage("INFO", "Step3_Ollama Read PDF English and convert Vector", "Skipped embedding step. Using previously generated data.");
+                LogToFile(skipLog3);
+                Console.WriteLine(skipLog3);
+
+                string skipLog4 = LogMessage("INFO", "Step4_Ollama Read PDF Thai and convert Vector", "Skipped embedding step. Using previously generated data.");
+                LogToFile(skipLog4);
+                Console.WriteLine(skipLog4);
             }
+
+            await RAG("Step5_Azure OpenAI RAG English", azureEmbeddingGenerator, azureChatClient, isAzure: true, isEnglish: true);
+            await RAG("Step6_Azure OpenAI RAG Thai", azureEmbeddingGenerator, azureChatClient, isAzure: true, isEnglish: false);
+            await RAG("Step7_Ollama RAG English", ollamaEmbeddingGenerator, ollamaChatClient, isAzure: false, isEnglish: true);
+            await RAG("Step8_Ollama RAG Thai", ollamaEmbeddingGenerator, ollamaChatClient, isAzure: false, isEnglish: false);
 
             Console.WriteLine("All steps completed successfully.");
             return 0;
@@ -117,23 +120,38 @@ class Program
 
         LogEnd(stepName, stopwatch);
     }
-    private static async Task RAG(string stepName, IEmbeddingGenerator<string, Embedding<float>> embeddingGenerator, bool isAzure, bool isEnglish)
+    private static async Task RAG(string stepName, IEmbeddingGenerator<string, Embedding<float>> embeddingGenerator, IChatClient chatClient, bool isAzure, bool isEnglish)
     {
         Stopwatch stopwatch;
 
+        Console.WriteLine();
+        Console.WriteLine();
+        
         LogStart(stepName, out stopwatch);
 
         try
         {
-            string pdfManualPath = isEnglish ? "manuals" : "manuals_thai";
-            string pdfFilePath = Path.Combine("data", pdfManualPath);
+            // Configure product manual service
+            var vectorStore = new InMemoryVectorStore();
+            var productManualService = new ProductManualService(embeddingGenerator, vectorStore, isAzure);
 
-            string llmProvider = isAzure ? "azure" : "ollama";
-            string language = isEnglish ? "english" : "thai";
-            string chunkFilePath = Path.Combine("data", $"manual-chunks-{llmProvider}-{language}.json");
+            var pdfChunks = "";
+            if (isAzure && isEnglish)
+                pdfChunks = "manual-chunks-azure-english.json";
+            else if (isAzure && !isEnglish)
+                pdfChunks = "manual-chunks-azure-thai.json";
+            else if (!isAzure && isEnglish)
+                pdfChunks = "manual-chunks-ollama-english.json";
+            else
+                pdfChunks = "manual-chunks-ollama-thai.json";
 
-            var manualIngestor = new ManualIngestor(embeddingGenerator);
-            await manualIngestor.RunAsync(pdfFilePath, "./data", chunkFilePath);
+            var prompt = "Please specify the product url.";
+            if(!isEnglish)
+                prompt = "กรุณาบอกรายละเอียดของแพ็กเกจประกันสุขภาพ ";
+
+            Utils.LoadManualsIntoVectorStore(Path.Combine("data", pdfChunks), productManualService);
+
+            await Utils.RAGAsync(productManualService, chatClient, prompt);
         }
         catch (Exception ex)
         {

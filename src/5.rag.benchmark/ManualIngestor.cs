@@ -68,7 +68,6 @@ public class ManualIngestor
         }
 
         await File.WriteAllTextAsync(chunkFilePath, content);
-        Console.WriteLine($"Wrote {chunks.Count} manual chunks");
     }
 
     private static string GetPageText(Page pdfPage)
