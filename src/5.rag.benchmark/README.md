@@ -46,8 +46,6 @@
 
 3. ในไฟล์ `appsettings.json` ตั้งค่าดังนี้:
     ```json
-    `useAzureOpenAI : false`
-    
     "Ollama": {
         "ChatModel": "llama3.2",
         "TextEmbeddingModel": "all-minilm",
@@ -64,11 +62,8 @@
     หากคุณใช้ชื่อ deployment ต่างจาก *chat* และ *embedding* อัปเดตชื่อใน `appsettings.json`  
 
 2. ใน *Program.cs* ตั้งค่าดังนี้:
-    - `useAzureOpenAI : true`
   - 
     ```json
-    `useAzureOpenAI : true`
-    
     "AzureOpenAI": {
         "ChatModel": "gpt-4o-mini",
         "TextEmbeddingModel": "text-embedding-3-small",
@@ -76,3 +71,15 @@
         "ApiKey": "{Azure API Key}"
     }
     ```
+
+## การรัน
+
+รันแบบอ่าน PDF เพื่อสร้าง Vector
+```
+dotnet run
+```
+
+รันแบบไม่อ่าน PDF และไม่สร้าง Vector
+```
+dotnet run --skip-embed
+```
