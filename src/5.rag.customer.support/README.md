@@ -13,6 +13,8 @@
 - สร้างสรุปสำหรับ customer support tickets  
 - สร้าง embeddings สำหรับคู่มือผลิตภัณฑ์  
 - ทำ semantic search บนคู่มือผลิตภัณฑ์  
+- บทความ : [จำลอง RAG กับ PDF ด้วยตัวอย่าง Customer Support รองรับภาษาไทย](https://medium.com/t-t-software-solution/rag-for-pdf-files-5746f9b3311a)
+- Video : [RAG for PDF Files: Customer Support - A Chat-based Application with Cloud LLMs and Local LLMs](https://youtu.be/A_8SgtOltI8?si=UGnbo7kdZK85SgRF)
 
 ## โครงสร้างโปรเจกต์
 
