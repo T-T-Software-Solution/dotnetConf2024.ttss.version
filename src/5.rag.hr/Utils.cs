@@ -1,4 +1,6 @@
-﻿public static class Utils
+﻿using System.Text;
+
+public static class Utils
 {
     public static void ReadDataFromConfig(
         out bool useAzureOpenAI,
@@ -66,15 +68,25 @@
                     .PageSize(10)
                     .MoreChoicesText("[grey](Move up and down to reveal more choices)[/]")
                     .AddChoices(employees)
-                    .UseConverter(employee => $"รหัสพนักงาน: {employee.EmployeeId.ToString()} - ({TranslateEmploymentStatus(employee.EmploymentStatus)}) {employee.FullName} {employee.Position}")
+                    .UseConverter(employee => $"รหัสพนักงาน: {employee.EmployeeId.ToString()} - ({TranslateEmploymentStatus(employee.EmploymentStatus)}) {employee.FullName} ({employee.Position})")
             );
         if (employee == null)
         {
             Console.WriteLine("Employ not found.");
         }
 
+        messageText = "";
+        StringBuilder messageBuilder = new StringBuilder();
         // Employee formatted for display
-        messageText = string.Join("\n", employee.InteractionHistory);
+        foreach (var interaction in employee.InteractionHistory)
+        {
+            messageBuilder.AppendLine($"[grey]วันที่: {interaction.Date}[/]");
+            messageBuilder.AppendLine($"[blue]พนักงานสอบถามเรื่อง: {interaction.Content}[/]");
+            messageBuilder.AppendLine($"[green]AI ตอบว่า: {interaction.AIResponse}[/]");
+            messageBuilder.AppendLine();
+        }
+
+        messageText = messageBuilder.ToString();
     }
     
     private static void SetupPanelAndDisplay(Employee? employee, Panel panel)
@@ -83,13 +95,13 @@
         AnsiConsole.Write(panel);
     }
 
-    private static async Task<ChatCompletion> GenerateSummary(Employeeummarizer summaryGenerator, string messageText)
+    private static async Task<ChatCompletion> GenerateSummary(EmployeeSummarizer summaryGenerator, string messageText)
     {
         return await summaryGenerator.GenerateLongSummaryAsync(messageText);
     }
 
     public static async Task InspectTicketWithSemanticSearchAsync(IEnumerable<Employee> employees, 
-        Employeeummarizer summaryGenerator, ProductManualService productManualService, IChatClient chatClient)
+        EmployeeSummarizer summaryGenerator, ProductManualService productManualService, IChatClient chatClient)
     {
         Employee? employee;
         string messageText;
@@ -97,16 +109,14 @@
 
         ChatCompletion summary = await GenerateSummary(summaryGenerator, messageText);
 
-        var panel = new Panel($"[olive]{messageText}\n\nAI สรุปให้ว่า: {summary}[/]");
+        var panel = new Panel($"[olive]{messageText}AI สรุปการสนทนาว่า: {summary}[/]");
         
         SetupPanelAndDisplay(employee, panel);
-
-        return;
 
         // Chat loop
         var prompt = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
-                .Title("Enter a command")
+                .Title("กรุณาสอบถามรายละเอียดของพนักงานเพิ่มเติม เช่น วันหยุด, สิทธิพิเศษและสวัสดิการ, ประวัติการทำงาน, ความสามารถ, ประวัติการขึ้นเงินเดือน, ประวัติการอบรม, ประวัติการเลื่อนตำแหน่ง, เป้าหมายในอาชีพ, ใบรับรอง, ความสนใจส่วนตัว")
                 .PageSize(10)
                 .MoreChoicesText("[grey](Move up and down to reveal more choices)[/]")
                 .AddChoices(new[] { "Chat", "Back" })
@@ -121,7 +131,7 @@
                 var query =
                     AnsiConsole
                         .Prompt(
-                            new TextPrompt<string>("Enter a message (type 'quit' to exit)")
+                            new TextPrompt<string>("ระบุสิ่งที่ต้องการถาม (type 'quit' to exit)")
                                 .PromptStyle("green")
                         );
 
@@ -170,11 +180,6 @@
                 AnsiConsole.MarkupLine($"[yellow]Employee Id: {employee.EmployeeId}[/]");
                 AnsiConsole.MarkupLine($"[yellow]\nเนื้อหาจาก PDF ที่เกี่ยวข้องจากการค้นหาด้วย Vector Search[/]");
                 AnsiConsole.MarkupLine($"[yellow]{contextString}[/]");
-
-                // [3.4] Display RAG Prompt
-                AnsiConsole.MarkupLine($"\n[bold Purple]Prompt ที่ส่งไปหา Chat Completion Model[/]");
-                AnsiConsole.MarkupLine("[bold Purple]---------------[/]");
-                AnsiConsole.MarkupLine($"[Purple]{message}[/]");
             }
         }
     }

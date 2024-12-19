@@ -23,14 +23,14 @@
         }
     }
 
-    public async Task<VectorSearchResults<ManualChunk>> GetManualChunksAsync(string query, int? productId, int? limit = 5)
+    public async Task<VectorSearchResults<ManualChunk>> GetManualChunksAsync(string query, int? employeeId, int? limit = 5)
     {
 
         var queryEmbedding = await _embeddingGenerator.GenerateEmbeddingVectorAsync(query);
 
         var filter =
             new VectorSearchFilter()
-                .EqualTo(nameof(ManualChunk.ProductId), productId);
+                .EqualTo(nameof(ManualChunk.EmployeeId), employeeId);
 
         var searchOptions = new VectorSearchOptions
         {
@@ -49,7 +49,7 @@
             Properties = new List<VectorStoreRecordProperty>
             {
                 new VectorStoreRecordKeyProperty(nameof(ManualChunk.ChunkId), typeof(int)),
-                new VectorStoreRecordDataProperty(nameof(ManualChunk.ProductId), typeof(int)) { IsFilterable = true },
+                new VectorStoreRecordDataProperty(nameof(ManualChunk.EmployeeId), typeof(int)) { IsFilterable = true },
                 new VectorStoreRecordDataProperty(nameof(ManualChunk.PageNumber), typeof(int)) { IsFilterable = true },
                 new VectorStoreRecordVectorProperty(nameof(ManualChunk.Embedding), typeof(ReadOnlyMemory<float>)) { Dimensions = _dimensions, DistanceFunction = DistanceFunction.CosineDistance },
                 new VectorStoreRecordDataProperty(nameof(ManualChunk.Text), typeof(string)) { IsFilterable = true },

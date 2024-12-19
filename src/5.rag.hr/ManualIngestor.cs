@@ -58,7 +58,7 @@ public class ManualIngestor
                 var manualChunks =
                     paragraphsWithEmbeddings.Select(p => new ManualChunk
                     {
-                        ProductId = docId,
+                        EmployeeId = docId,
                         PageNumber = page.Number,
                         ChunkId = ++paragraphIndex,
                         Text = p.Value,

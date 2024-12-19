@@ -33,7 +33,7 @@ else
 if (!File.Exists("./data/manual-chunks.json"))
 {
     var manualIngestor = new ManualIngestor(embeddingGenerator);
-    await manualIngestor.RunAsync("./data/manuals", "./data");
+    await manualIngestor.RunAsync("./data/employee-profiles", "./data");
 }
 
 // Configure product manual service
@@ -41,31 +41,14 @@ var vectorStore = new InMemoryVectorStore();
 var productManualService = new ProductManualService(embeddingGenerator, vectorStore, useAzureOpenAI);
 
 // Load Employee
-var Employee = Utils.LoadEmployee("./data/employee.json");
+var employees = Utils.LoadEmployee("./data/employee.json");
 
 // Load manuals
 Utils.LoadManualsIntoVectorStore("./data/manual-chunks.json", productManualService);
 
 // Service configurations
-var summaryGenerator = new Employeeummarizer(chatClient);
+var summaryGenerator = new EmployeeSummarizer(chatClient);
 
-while (true)
-{
-    var prompt =
-        AnsiConsole
-            .Prompt(
-                new SelectionPrompt<string>()
-                    .Title("Enter a command")
-                    .PageSize(10)
-                    .MoreChoicesText("[grey](Move up and down to reveal more choices)[/]")
-                    .AddChoices(new[] { "Inspect employee", "Quit" })
-            );
 
-    if (prompt == "Quit") break;
-
-    if (prompt == "Inspect employee")
-    {
-        // With Semantic Search 
-        await Utils.InspectTicketWithSemanticSearchAsync(Employee, summaryGenerator, productManualService, chatClient);
-    }
-}
+// With Semantic Search 
+await Utils.InspectTicketWithSemanticSearchAsync(employees, summaryGenerator, productManualService, chatClient);

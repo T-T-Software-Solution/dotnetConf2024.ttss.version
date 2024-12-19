@@ -4,7 +4,7 @@ public class ManualChunk
 {
     public int ChunkId { get; set; }
 
-    public int ProductId { get; set; }
+    public int EmployeeId { get; set; }
 
     public int PageNumber { get; set; }
 
@@ -39,9 +39,9 @@ public class Interaction
 {
     public int InteractionId { get; set; } // MessageId -> InteractionId
 
-    public DateTime CreatedAt { get; set; } // วันที่ของการถามตอบ
+    public DateTime Date { get; set; } // วันที่ของการถามตอบ
 
-    public string Text { get; set; } = string.Empty; // เนื้อหาของคำถาม
+    public string Content { get; set; } = string.Empty; // เนื้อหาของคำถาม
 
     public string AIResponse { get; set; } = string.Empty; // คำตอบจาก AI
 }

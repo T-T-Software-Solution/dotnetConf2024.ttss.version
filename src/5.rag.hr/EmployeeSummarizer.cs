@@ -1,8 +1,8 @@
-﻿public class Employeeummarizer
+﻿public class EmployeeSummarizer
 {
     private readonly IChatClient _chatClient;
 
-    public Employeeummarizer(IChatClient chatClient)
+    public EmployeeSummarizer(IChatClient chatClient)
     {
         _chatClient = chatClient;
     }
@@ -31,19 +31,19 @@
     {
         return
             $"""
-            You are part of a customer support ticketing system.
+            You are part of a HR system.
             
-            Your job is to write brief summaries of customer support interactions.
+            Your job is to write brief summaries of employee inquiry interactions.
 
-            This is to help support agents understand the context quickly so they can help the customer efficiently.
+            This is to help support agents understand the context quickly so they can know their chat history from the past efficiently.
 
-            Here are details of a support ticket.
+            Here are details of chat history interaction.
 
             ${messages}
 
             Write a summary that is up to 30 words long, condensing as much distinctive information as possible.
 
-            ตอบเป็นภาษาไทย
+            ตอบเป็นภาษาไทย โดยสรุปสิ่งที่พนักงานสงสัยในภาพรวม
 
             Summary: 
             """;
