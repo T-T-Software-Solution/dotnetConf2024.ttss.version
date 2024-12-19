@@ -40,14 +40,14 @@ if (!File.Exists("./data/manual-chunks.json"))
 var vectorStore = new InMemoryVectorStore();
 var productManualService = new ProductManualService(embeddingGenerator, vectorStore, useAzureOpenAI);
 
-// Load tickets
-var tickets = Utils.LoadTickets("./data/tickets.json");
+// Load Employee
+var Employee = Utils.LoadEmployee("./data/employee.json");
 
 // Load manuals
 Utils.LoadManualsIntoVectorStore("./data/manual-chunks.json", productManualService);
 
 // Service configurations
-var summaryGenerator = new TicketSummarizer(chatClient);
+var summaryGenerator = new Employeeummarizer(chatClient);
 
 while (true)
 {
@@ -58,14 +58,14 @@ while (true)
                     .Title("Enter a command")
                     .PageSize(10)
                     .MoreChoicesText("[grey](Move up and down to reveal more choices)[/]")
-                    .AddChoices(new[] { "Inspect ticket", "Quit" })
+                    .AddChoices(new[] { "Inspect employee", "Quit" })
             );
 
     if (prompt == "Quit") break;
 
-    if (prompt == "Inspect ticket")
+    if (prompt == "Inspect employee")
     {
         // With Semantic Search 
-        await Utils.InspectTicketWithSemanticSearchAsync(tickets, summaryGenerator, productManualService, chatClient);
+        await Utils.InspectTicketWithSemanticSearchAsync(Employee, summaryGenerator, productManualService, chatClient);
     }
 }

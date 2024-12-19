@@ -10,7 +10,7 @@
 
 ตัวอย่างนี้เป็น C# console application ที่ใช้ Generative AI services เช่น Ollama หรือ Azure OpenAI เพื่อ:
 
-- สร้างสรุปสำหรับ customer support tickets  
+- สร้างสรุปสำหรับ customer support Employee  
 - สร้าง embeddings สำหรับคู่มือผลิตภัณฑ์  
 - ทำ semantic search บนคู่มือผลิตภัณฑ์  
 
@@ -18,7 +18,7 @@
 
 - **ManualIngestor.cs** - Service สำหรับการ ingestion ที่ใช้ดึงข้อมูลจากไฟล์ PDF ของคู่มือผลิตภัณฑ์, แบ่งข้อความออกเป็นส่วนเล็ก ๆ, สร้าง embeddings และบันทึกเป็นไฟล์ JSON  
 - **ProductManualService.cs** - Service สำหรับการจัดเก็บที่ใช้ `IVectorStore` เพื่อบันทึกและค้นหา embeddings ของคู่มือผลิตภัณฑ์  
-- **TicketSummarizer** - AI service ที่ใช้โมเดล AI เพื่อสร้างสรุปสำหรับ customer support tickets  
+- **Employeeummarizer** - AI service ที่ใช้โมเดล AI เพื่อสร้างสรุปสำหรับ customer support Employee  
 
 ## ความต้องการระบบ
 

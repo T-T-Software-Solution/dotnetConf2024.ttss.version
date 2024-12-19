@@ -26,17 +26,11 @@
     {
         return new AzureOpenAIClient(new Uri(endpoint), new ApiKeyCredential(apiKey));
     }
-    public static IEnumerable<Ticket> LoadTickets(string path, int limit = 10)
+    public static IEnumerable<Employee> LoadEmployee(string path, int limit = 10)
     {
-        var ticketData = File.ReadAllText(path);
-        var tickets = JsonSerializer.Deserialize<List<Ticket>>(ticketData);
-        return tickets.Take(limit);
-    }
-
-    public static void SaveTickets(string path, IEnumerable<Ticket> tickets)
-    {
-        var ticketData = JsonSerializer.Serialize(tickets);
-        File.WriteAllText(path, ticketData);
+        var employeeData = File.ReadAllText(path);
+        var employees = JsonSerializer.Deserialize<List<Employee>>(employeeData);
+        return employees.Take(limit);
     }
 
     public static IEnumerable<ManualChunk> LoadManualChunks(string path)
@@ -52,50 +46,62 @@
         await productManualService.InsertManualChunksAsync(manuals);
     }
 
-    private static void SetupTicketInfo(IEnumerable<Ticket> tickets, out Ticket? ticket, out string messageText)
+    // แปลงสถานะการทำงานเป็นไทย
+    private static string TranslateEmploymentStatus(EmploymentStatus status)
+    {
+        return status switch
+        {
+            EmploymentStatus.Open => "ทำงานอยู่",
+            EmploymentStatus.Closed => "ไม่ได้ทำแล้ว",
+            _ => "ไม่ทราบสถานะ"
+        };
+    }
+
+    private static void SetupEmployeeInfo(IEnumerable<Employee> employees, out Employee? employee, out string messageText)
     {
         // User selects ticket
-        ticket = AnsiConsole.Prompt(
-                new SelectionPrompt<Ticket>()
-                    .Title("Select ticket")
+        employee = AnsiConsole.Prompt(
+                new SelectionPrompt<Employee>()
+                    .Title("Select employee")
                     .PageSize(10)
                     .MoreChoicesText("[grey](Move up and down to reveal more choices)[/]")
-                    .AddChoices(tickets)
-                    .UseConverter(ticket => $"{ticket.TicketId.ToString()} - ({ticket.TicketStatus}) {ticket.ShortSummary}")
+                    .AddChoices(employees)
+                    .UseConverter(employee => $"รหัสพนักงาน: {employee.EmployeeId.ToString()} - ({TranslateEmploymentStatus(employee.EmploymentStatus)}) {employee.FullName} {employee.Position}")
             );
-        if (ticket == null)
+        if (employee == null)
         {
-            Console.WriteLine("Ticket not found.");
+            Console.WriteLine("Employ not found.");
         }
 
-        // Tickets formatted for display
-        var formattedMessages = ticket.Messages.Select(m =>
-            m.IsCustomerMessage ? $"\n[blue]ลูกค้า: {m.Text}[/]" : $"\n[green]เจ้าหน้าที่: {m.Text}[/]");
-        messageText = string.Join("\n", formattedMessages);
+        // Employee formatted for display
+        messageText = string.Join("\n", employee.InteractionHistory);
     }
     
-    private static void SetupPanelAndDisplay(Ticket? ticket, Panel panel)
+    private static void SetupPanelAndDisplay(Employee? employee, Panel panel)
     {
-        panel.Header = new PanelHeader($"Customer Messages for Ticket ID: {ticket.TicketId}");
+        panel.Header = new PanelHeader($"Customer Messages for Employee ID: {employee.EmployeeId}");
         AnsiConsole.Write(panel);
     }
 
-    private static async Task<ChatCompletion> GenerateSummary(TicketSummarizer summaryGenerator, string messageText)
+    private static async Task<ChatCompletion> GenerateSummary(Employeeummarizer summaryGenerator, string messageText)
     {
         return await summaryGenerator.GenerateLongSummaryAsync(messageText);
     }
 
-    public static async Task InspectTicketWithSemanticSearchAsync(IEnumerable<Ticket> tickets, TicketSummarizer summaryGenerator, ProductManualService productManualService, IChatClient chatClient)
+    public static async Task InspectTicketWithSemanticSearchAsync(IEnumerable<Employee> employees, 
+        Employeeummarizer summaryGenerator, ProductManualService productManualService, IChatClient chatClient)
     {
-        Ticket? ticket;
+        Employee? employee;
         string messageText;
-        SetupTicketInfo(tickets, out ticket, out messageText);
+        SetupEmployeeInfo(employees, out employee, out messageText);
 
         ChatCompletion summary = await GenerateSummary(summaryGenerator, messageText);
 
         var panel = new Panel($"[olive]{messageText}\n\nAI สรุปให้ว่า: {summary}[/]");
         
-        SetupPanelAndDisplay(ticket, panel);
+        SetupPanelAndDisplay(employee, panel);
+
+        return;
 
         // Chat loop
         var prompt = AnsiConsole.Prompt(
@@ -123,7 +129,7 @@
 
                 // RAG loop
                 // [1] Search for relevant documents
-                var manualChunks = await productManualService.GetManualChunksAsync(query, ticket.ProductId.Value);
+                var manualChunks = await productManualService.GetManualChunksAsync(query, employee.EmployeeId);
 
                 // [2] Augment prompt with search results
                 var context = (await manualChunks.Results.ToListAsync()).Select(r => $"- {r.Record.Text}");
@@ -161,7 +167,7 @@
                 // [3.3] Display PDF Content from Vector Search
                 AnsiConsole.MarkupLine($"\n[bold yellow]ข้อมูลที่ระบบหาเจอจาก PDF Files[/]");
                 AnsiConsole.MarkupLine("[bold yellow]---------------[/]");
-                AnsiConsole.MarkupLine($"[yellow]Product Id: {ticket.ProductId.Value}[/]");
+                AnsiConsole.MarkupLine($"[yellow]Employee Id: {employee.EmployeeId}[/]");
                 AnsiConsole.MarkupLine($"[yellow]\nเนื้อหาจาก PDF ที่เกี่ยวข้องจากการค้นหาด้วย Vector Search[/]");
                 AnsiConsole.MarkupLine($"[yellow]{contextString}[/]");
 

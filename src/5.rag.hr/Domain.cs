@@ -13,40 +13,35 @@ public class ManualChunk
     public required ReadOnlyMemory<float> Embedding { get; set; }
 }
 
-public class Message
+public enum EmploymentStatus
 {
-    public int MessageId { get; set; }
-
-    public DateTime CreatedAt { get; set; }
-
-    public int TicketId { get; set; }
-
-    public bool IsCustomerMessage { get; set; }
-
-    public required string Text { get; set; }
+    Open,  // ทำงานอยู่
+    Closed // ไม่ได้ทำแล้ว
 }
 
-public enum TicketStatus
+public class Employee
 {
-    Open,
-    Closed,
-}
-public class Ticket
-{
-    public int TicketId { get; set; }
+    public int EmployeeId { get; set; } // TicketId -> EmployeeId
 
-    public int? ProductId { get; set; }
+    public DateTime CreatedAt { get; set; } // วันที่สร้างข้อมูล
 
-    public DateTime CreatedAt { get; set; }
+    public string FullName { get; set; } = string.Empty; // ชื่อเต็มของพนักงาน
 
-    public string? ShortSummary { get; set; }
-
-    public int CustomerId { get; set; }
+    public string Position { get; set; } = string.Empty; // ตำแหน่งงาน
 
     [JsonConverter(typeof(JsonStringEnumConverter))]
-    public TicketStatus TicketStatus { get; set; }
+    public EmploymentStatus EmploymentStatus { get; set; } // สถานะการทำงาน
 
-    public List<Message> Messages { get; set; } = new();
-
+    public List<Interaction> InteractionHistory { get; set; } = new(); // ประวัติการถามตอบกับ AI
 }
 
+public class Interaction
+{
+    public int InteractionId { get; set; } // MessageId -> InteractionId
+
+    public DateTime CreatedAt { get; set; } // วันที่ของการถามตอบ
+
+    public string Text { get; set; } = string.Empty; // เนื้อหาของคำถาม
+
+    public string AIResponse { get; set; } = string.Empty; // คำตอบจาก AI
+}

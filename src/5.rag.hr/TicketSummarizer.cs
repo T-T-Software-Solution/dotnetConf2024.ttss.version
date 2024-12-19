@@ -1,8 +1,8 @@
-﻿public class TicketSummarizer
+﻿public class Employeeummarizer
 {
     private readonly IChatClient _chatClient;
 
-    public TicketSummarizer(IChatClient chatClient)
+    public Employeeummarizer(IChatClient chatClient)
     {
         _chatClient = chatClient;
     }
