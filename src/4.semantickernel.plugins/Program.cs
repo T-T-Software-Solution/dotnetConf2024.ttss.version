@@ -22,20 +22,21 @@ namespace SemanticKernelGettingStarted
             string openAIChatModel, openAIKey;
             string azureChatModel, azureAPIEndpoint, azureAPIKey;
 
-            ReadDataFromConfig(out aiMode, 
+            ReadDataFromConfig(out aiMode,
                 out ollamaChatModel, out ollamaAPIEndpoint,
-                out openAIChatModel, out openAIKey, 
+                out openAIChatModel, out openAIKey,
                 out azureChatModel, out azureAPIEndpoint, out azureAPIKey);
 
-            IKernelBuilder builder = AddAIServices(aiMode, 
+            IKernelBuilder builder = AddAIServices(aiMode,
                 ollamaChatModel, ollamaAPIEndpoint,
-                openAIChatModel, openAIKey, 
+                openAIChatModel, openAIKey,
                 azureChatModel, azureAPIEndpoint, azureAPIKey);
 
             AddEnterpriseServices(builder);
-            
+
             Kernel kernel = BuildKernel(builder);
             IChatCompletionService chatCompletionService = GetChatService(kernel);
+
             AddPluginToTheKernel(kernel);
 
             OpenAIPromptExecutionSettings openAIPromptExecutionSettings = SetupPlannerAutoPluginCalling();
@@ -53,7 +54,7 @@ namespace SemanticKernelGettingStarted
             out string ollamaChatModel, out string ollamaAPIEndpoint,
             out string openAIChatModel, out string openAIKey,
             out string azureChatModel, out string azureAPIEndpoint, out string azureAPIKey)
-    
+
         {
             IConfiguration configuration = new ConfigurationBuilder()
                             .AddJsonFile("appsettings.json")
@@ -71,7 +72,7 @@ namespace SemanticKernelGettingStarted
             azureAPIEndpoint = configuration["AzureOpenAI:Endpoint"] ?? throw new ArgumentNullException("AzureOpenAI:Endpoint");
             azureAPIKey = configuration["AzureOpenAI:ApiKey"] ?? throw new ArgumentNullException("AzureOpenAI:ApiKey");
         }
-        private static IKernelBuilder AddAIServices(string aiMode, 
+        private static IKernelBuilder AddAIServices(string aiMode,
             string ollamaChatModel, string ollamaAPIEndpoint,
             string openAIChatModel, string openAIKey,
             string azureChatModel, string azureAPIEndpoint, string azureAPIKey)
@@ -80,16 +81,16 @@ namespace SemanticKernelGettingStarted
             {
                 case "Ollama":
                     return Kernel.CreateBuilder().AddOllamaChatCompletion(
-                        modelId: ollamaChatModel, 
+                        modelId: ollamaChatModel,
                         endpoint: new Uri(ollamaAPIEndpoint));
-                case "OpenAI":  
+                case "OpenAI":
                     return Kernel.CreateBuilder().AddOpenAIChatCompletion(
-                        modelId: openAIChatModel, 
+                        modelId: openAIChatModel,
                         apiKey: openAIKey);
-                case "AzureOpenAI": 
+                case "AzureOpenAI":
                     return Kernel.CreateBuilder().AddAzureOpenAIChatCompletion(
-                        deploymentName: azureChatModel, 
-                        endpoint: azureAPIEndpoint, 
+                        deploymentName: azureChatModel,
+                        endpoint: azureAPIEndpoint,
                         apiKey: azureAPIKey);
                 default:
                     throw new ArgumentException("Invalid AI mode");
@@ -150,52 +151,53 @@ namespace SemanticKernelGettingStarted
             history.AddMessage(result.Role, result.Content ?? string.Empty);
             return userInput;
         }
-   }
-    public class LightsPlugin
-    {
-        // Mock data for the lights
-        private readonly List<LightModel> lights = new()
+
+        public class LightsPlugin
+        {
+            // Mock data for the lights
+            private readonly List<LightModel> lights = new()
             {
                 new LightModel { Id = 1, Name = "Table Lamp", IsOn = false },
                 new LightModel { Id = 2, Name = "Porch light", IsOn = false },
                 new LightModel { Id = 3, Name = "Chandelier", IsOn = true }
             };
 
-        [KernelFunction("get_lights")]
-        [Description("Gets a list of lights and their current state")]
-        [return: Description("An array of lights")]
-        public async Task<List<LightModel>> GetLightsAsync()
-        {
-            return lights;
-        }
-
-        [KernelFunction("change_state")]
-        [Description("Changes the state of the light")]
-        [return: Description("The updated state of the light; will return null if the light does not exist")]
-        public async Task<LightModel?> ChangeStateAsync(int id, bool isOn)
-        {
-            var light = lights.FirstOrDefault(light => light.Id == id);
-
-            if (light == null)
+            [KernelFunction("get_lights")]
+            [Description("Gets a list of lights and their current state")]
+            [return: Description("An array of lights")]
+            public async Task<List<LightModel>> GetLightsAsync()
             {
-                return null;
+                return lights;
             }
 
-            // Update the light with the new state
-            light.IsOn = isOn;
+            [KernelFunction("change_state")]
+            [Description("Changes the state of the light")]
+            [return: Description("The updated state of the light; will return null if the light does not exist")]
+            public async Task<LightModel?> ChangeStateAsync(int id, bool isOn)
+            {
+                var light = lights.FirstOrDefault(light => light.Id == id);
 
-            return light;
+                if (light == null)
+                {
+                    return null;
+                }
+
+                // Update the light with the new state
+                light.IsOn = isOn;
+
+                return light;
+            }
         }
-    }
-    public class LightModel
-    {
-        [JsonPropertyName("id")]
-        public int Id { get; set; }
+        public class LightModel
+        {
+            [JsonPropertyName("id")]
+            public int Id { get; set; }
 
-        [JsonPropertyName("name")]
-        public string Name { get; set; }
+            [JsonPropertyName("name")]
+            public string Name { get; set; }
 
-        [JsonPropertyName("is_on")]
-        public bool? IsOn { get; set; }
+            [JsonPropertyName("is_on")]
+            public bool? IsOn { get; set; }
+        }
     }
 }
