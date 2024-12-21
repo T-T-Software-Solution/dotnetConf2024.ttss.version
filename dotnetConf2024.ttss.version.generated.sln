@@ -21,6 +21,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "4.semantickernel.gettingsta
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "5.rag.customer.support", "src\5.rag.customer.support\5.rag.customer.support.csproj", "{12E1B825-DB1B-4556-B2EF-BBFF5F1C77B4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "5.rag.benchmark", "src\5.rag.benchmark\5.rag.benchmark.csproj", "{9B43AC89-FA14-49B2-812C-1B660395F440}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "5.rag.hr", "src\5.rag.hr\5.rag.hr.csproj", "{AF0ED0EF-1051-4960-B905-53C9986A1971}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -59,6 +63,14 @@ Global
 		{12E1B825-DB1B-4556-B2EF-BBFF5F1C77B4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{12E1B825-DB1B-4556-B2EF-BBFF5F1C77B4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{12E1B825-DB1B-4556-B2EF-BBFF5F1C77B4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9B43AC89-FA14-49B2-812C-1B660395F440}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9B43AC89-FA14-49B2-812C-1B660395F440}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9B43AC89-FA14-49B2-812C-1B660395F440}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9B43AC89-FA14-49B2-812C-1B660395F440}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF0ED0EF-1051-4960-B905-53C9986A1971}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF0ED0EF-1051-4960-B905-53C9986A1971}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF0ED0EF-1051-4960-B905-53C9986A1971}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF0ED0EF-1051-4960-B905-53C9986A1971}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -72,6 +84,8 @@ Global
 		{32A45BFE-17A6-422F-A75C-199C932B6560} = {822A8DB8-60CE-4C44-9089-C963BECC508C}
 		{ED5BA3AA-340B-4775-8FB1-32B7E3DE7E9F} = {822A8DB8-60CE-4C44-9089-C963BECC508C}
 		{12E1B825-DB1B-4556-B2EF-BBFF5F1C77B4} = {822A8DB8-60CE-4C44-9089-C963BECC508C}
+		{9B43AC89-FA14-49B2-812C-1B660395F440} = {822A8DB8-60CE-4C44-9089-C963BECC508C}
+		{AF0ED0EF-1051-4960-B905-53C9986A1971} = {822A8DB8-60CE-4C44-9089-C963BECC508C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7CB0A261-F2CF-44C1-9127-85C167D21B22}

@@ -15,10 +15,18 @@ namespace SemanticKernelGettingStarted
         static async Task Main(string[] args)
         {
             // Populate values from your OpenAI deployment
-            string modelId, endpoint, apiKey;
-            ReadDataFromConfig(out modelId, out endpoint, out apiKey);
+            bool useAzureOpenAI;
+            string openAIChatModel, openAIKey;
+            string azureChatModel, azureAPIEndpoint, azureAPIKey;
 
-            IKernelBuilder builder = AddAIServices(modelId, endpoint, apiKey);
+            ReadDataFromConfig(out useAzureOpenAI, 
+                out openAIChatModel, out openAIKey, 
+                out azureChatModel, out azureAPIEndpoint, out azureAPIKey);
+
+            IKernelBuilder builder = AddAIServices(useAzureOpenAI, 
+                openAIChatModel, openAIKey, 
+                azureChatModel, azureAPIEndpoint, azureAPIKey);
+
             AddEnterpriseServices(builder);
             
             Kernel kernel = BuildKernel(builder);
@@ -35,20 +43,42 @@ namespace SemanticKernelGettingStarted
                 userInput = await InvokeTheKernel(kernel, chatCompletionService, openAIPromptExecutionSettings, history);
             } while (userInput is not null);
         }
-        private static void ReadDataFromConfig(out string chatModel, out string azureAPIEndpoint, out string azureAPIKey)
+        private static void ReadDataFromConfig(
+            out bool useAzureOpenAI,
+            out string openAIChatModel, out string openAIKey,
+            out string azureChatModel, out string azureAPIEndpoint, out string azureAPIKey)
+    
         {
             IConfiguration configuration = new ConfigurationBuilder()
                             .AddJsonFile("appsettings.json")
                             .Build();
 
-            chatModel = configuration["AzureOpenAI:ChatModel"] ?? throw new ArgumentNullException("AzureOpenAI:ChatModel");
+            useAzureOpenAI = bool.Parse(configuration["useAzureOpenAI"] ?? throw new ArgumentNullException("useAzureOpenAI"));
+
+            openAIChatModel = configuration["OpenAI:ChatModel"] ?? throw new ArgumentNullException("OpenAI:ChatModel");
+            openAIKey = configuration["OpenAI:ApiKey"] ?? throw new ArgumentNullException("OpenAI:ApiKey");
+
+            azureChatModel = configuration["AzureOpenAI:ChatModel"] ?? throw new ArgumentNullException("AzureOpenAI:ChatModel");
             azureAPIEndpoint = configuration["AzureOpenAI:Endpoint"] ?? throw new ArgumentNullException("AzureOpenAI:Endpoint");
             azureAPIKey = configuration["AzureOpenAI:ApiKey"] ?? throw new ArgumentNullException("AzureOpenAI:ApiKey");
         }
-        private static IKernelBuilder AddAIServices(string modelId, string endpoint, string apiKey)
+        private static IKernelBuilder AddAIServices(bool useAzureOpenAI, 
+            string openAIChatModel, string openAIKey,
+            string azureChatModel, string azureAPIEndpoint, string azureAPIKey)
         {
-            // Create a kernel with Azure OpenAI chat completion
-            return Kernel.CreateBuilder().AddAzureOpenAIChatCompletion(modelId, endpoint, apiKey);
+            if (useAzureOpenAI)
+            {
+                return Kernel.CreateBuilder().AddAzureOpenAIChatCompletion(
+                    deploymentName: azureChatModel, 
+                    endpoint: azureAPIEndpoint, 
+                    apiKey: azureAPIKey);
+            }
+            else
+            {
+                return Kernel.CreateBuilder().AddOpenAIChatCompletion(
+                    modelId: openAIChatModel, 
+                    apiKey: openAIKey);
+            }
         }
         private static void AddEnterpriseServices(IKernelBuilder builder)
         {
