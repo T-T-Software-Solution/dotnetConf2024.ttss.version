@@ -1,4 +1,6 @@
-﻿// Import packages
+﻿#pragma warning disable SKEXP0070 // Type is for evaluation purposes only and is subject to change or removal in future updates. Suppress this diagnostic to proceed.
+
+// Import packages
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
@@ -15,15 +17,18 @@ namespace SemanticKernelGettingStarted
         static async Task Main(string[] args)
         {
             // Populate values from your OpenAI deployment
-            bool useAzureOpenAI;
+            string aiMode;
+            string ollamaChatModel, ollamaAPIEndpoint;
             string openAIChatModel, openAIKey;
             string azureChatModel, azureAPIEndpoint, azureAPIKey;
 
-            ReadDataFromConfig(out useAzureOpenAI, 
+            ReadDataFromConfig(out aiMode, 
+                out ollamaChatModel, out ollamaAPIEndpoint,
                 out openAIChatModel, out openAIKey, 
                 out azureChatModel, out azureAPIEndpoint, out azureAPIKey);
 
-            IKernelBuilder builder = AddAIServices(useAzureOpenAI, 
+            IKernelBuilder builder = AddAIServices(aiMode, 
+                ollamaChatModel, ollamaAPIEndpoint,
                 openAIChatModel, openAIKey, 
                 azureChatModel, azureAPIEndpoint, azureAPIKey);
 
@@ -44,7 +49,8 @@ namespace SemanticKernelGettingStarted
             } while (userInput is not null);
         }
         private static void ReadDataFromConfig(
-            out bool useAzureOpenAI,
+            out string aiMode,
+            out string ollamaChatModel, out string ollamaAPIEndpoint,
             out string openAIChatModel, out string openAIKey,
             out string azureChatModel, out string azureAPIEndpoint, out string azureAPIKey)
     
@@ -53,7 +59,10 @@ namespace SemanticKernelGettingStarted
                             .AddJsonFile("appsettings.json")
                             .Build();
 
-            useAzureOpenAI = bool.Parse(configuration["useAzureOpenAI"] ?? throw new ArgumentNullException("useAzureOpenAI"));
+            aiMode = configuration["AIMode"] ?? throw new ArgumentNullException("AIMode");
+
+            ollamaChatModel = configuration["Ollama:ChatModel"] ?? throw new ArgumentNullException("Ollama:ChatModel");
+            ollamaAPIEndpoint = configuration["Ollama:Endpoint"] ?? throw new ArgumentNullException("Ollama:Endpoint");
 
             openAIChatModel = configuration["OpenAI:ChatModel"] ?? throw new ArgumentNullException("OpenAI:ChatModel");
             openAIKey = configuration["OpenAI:ApiKey"] ?? throw new ArgumentNullException("OpenAI:ApiKey");
@@ -62,22 +71,28 @@ namespace SemanticKernelGettingStarted
             azureAPIEndpoint = configuration["AzureOpenAI:Endpoint"] ?? throw new ArgumentNullException("AzureOpenAI:Endpoint");
             azureAPIKey = configuration["AzureOpenAI:ApiKey"] ?? throw new ArgumentNullException("AzureOpenAI:ApiKey");
         }
-        private static IKernelBuilder AddAIServices(bool useAzureOpenAI, 
+        private static IKernelBuilder AddAIServices(string aiMode, 
+            string ollamaChatModel, string ollamaAPIEndpoint,
             string openAIChatModel, string openAIKey,
             string azureChatModel, string azureAPIEndpoint, string azureAPIKey)
         {
-            if (useAzureOpenAI)
+            switch (aiMode)
             {
-                return Kernel.CreateBuilder().AddAzureOpenAIChatCompletion(
-                    deploymentName: azureChatModel, 
-                    endpoint: azureAPIEndpoint, 
-                    apiKey: azureAPIKey);
-            }
-            else
-            {
-                return Kernel.CreateBuilder().AddOpenAIChatCompletion(
-                    modelId: openAIChatModel, 
-                    apiKey: openAIKey);
+                case "Ollama":
+                    return Kernel.CreateBuilder().AddOllamaChatCompletion(
+                        modelId: ollamaChatModel, 
+                        endpoint: new Uri(ollamaAPIEndpoint));
+                case "OpenAI":  
+                    return Kernel.CreateBuilder().AddOpenAIChatCompletion(
+                        modelId: openAIChatModel, 
+                        apiKey: openAIKey);
+                case "AzureOpenAI": 
+                    return Kernel.CreateBuilder().AddAzureOpenAIChatCompletion(
+                        deploymentName: azureChatModel, 
+                        endpoint: azureAPIEndpoint, 
+                        apiKey: azureAPIKey);
+                default:
+                    throw new ArgumentException("Invalid AI mode");
             }
         }
         private static void AddEnterpriseServices(IKernelBuilder builder)
