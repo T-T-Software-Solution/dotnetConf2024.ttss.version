@@ -1,18 +1,5 @@
-# แหล่งอ้างอิง
-เนื้อหาในบทความนี้เป็นการนำตัวอย่างที่ Microsoft เตรียมไว้ในการ Demo Chat App เพื่อจำลองการ Support ลูกค้าในการตอบคำถามทางด้านผลิตภัณฑ์นะครับ
-
-- [เนื้อหาต้นทาง](https://github.com/dotnet/ai-samples/tree/main/src/chat/CustomerSupport)
-
-รวมถึงมี Video อธิบายไว้ที่นี้ครับ
-- [Video นาทีที่ 12:36 นะครับ](https://www.youtube.com/watch?v=0btB9W04y0Q&t=756s)
-
-# Customer Support (ไทย)
-
-ตัวอย่างนี้เป็น C# console application ที่ใช้ Generative AI services เช่น Ollama หรือ Azure OpenAI เพื่อ:
-
-- สร้างสรุปสำหรับ customer support Employee  
-- สร้าง embeddings สำหรับคู่มือผลิตภัณฑ์  
-- ทำ semantic search บนคู่มือผลิตภัณฑ์  
+# รายละเอียด
+https://www.loom.com/share/0600fd47db0f45eea7b05d89098e05a9
 
 ## โครงสร้างโปรเจกต์
 

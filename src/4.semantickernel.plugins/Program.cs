@@ -157,9 +157,9 @@ namespace SemanticKernelGettingStarted
             // Mock data for the lights
             private readonly List<LightModel> lights = new()
             {
-                new LightModel { Id = 1, Name = "Table Lamp", IsOn = false },
-                new LightModel { Id = 2, Name = "Porch light", IsOn = false },
-                new LightModel { Id = 3, Name = "Chandelier", IsOn = false }
+                new LightModel { Id = 1, Name = "Table Lamp", ThaiName = "โคมไฟตั้งโต๊ะ", IsOn = false },
+                new LightModel { Id = 2, Name = "Porch light", ThaiName = "ไฟระเบียง", IsOn = false },
+                new LightModel { Id = 3, Name = "Chandelier", ThaiName = "โคมไฟระย้า", IsOn = false }
             };
 
             [KernelFunction("get_lights")]
@@ -195,6 +195,8 @@ namespace SemanticKernelGettingStarted
 
             [JsonPropertyName("name")]
             public string Name { get; set; }
+            [JsonPropertyName("thainame")]
+            public string ThaiName { get; set; }
 
             [JsonPropertyName("is_on")]
             public bool? IsOn { get; set; }
