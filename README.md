@@ -26,6 +26,10 @@
 
   - [Source Code](./src/5.rag.customer.support/)
 
+- [Semantic Kernel — Plugins](https://medium.com/t-t-software-solution/semantic-kernel-plugin-53da0d268593)
+
+  - [Source Code](./src/4.semantickernel.plugins/)
+
 # ผู้เขียน - คุณนคร
 
 - [บันทึกการศึกษา Generative AI และ Vector Database](https://medium.com/t-t-software-solution/%E0%B8%9A%E0%B8%B1%E0%B8%99%E0%B8%97%E0%B8%B6%E0%B8%81%E0%B8%81%E0%B8%B2%E0%B8%A3%E0%B8%A8%E0%B8%B6%E0%B8%81%E0%B8%A9%E0%B8%B2-generative-ai-%E0%B9%81%E0%B8%A5%E0%B8%B0-vector-database-6166f34f2dc4)
