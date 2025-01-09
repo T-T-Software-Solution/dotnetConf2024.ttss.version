@@ -12,6 +12,8 @@ class Program
 {
     static async Task Main(string[] args)
     {
+        Console.OutputEncoding = System.Text.Encoding.UTF8;
+        
         // Build configuration
         IConfiguration configuration = new ConfigurationBuilder()
             .SetBasePath(Directory.GetCurrentDirectory())

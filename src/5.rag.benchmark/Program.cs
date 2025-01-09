@@ -8,6 +8,8 @@ class Program
 
     static async Task<int> Main(string[] args)
     {
+        Console.OutputEncoding = System.Text.Encoding.UTF8;
+        
         PrepareLogFile();
 
         // Configurations for Azure OpenAI and Ollama

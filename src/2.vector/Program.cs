@@ -14,6 +14,8 @@ namespace HelloVector
     {
         static async Task Main(string[] args)
         {
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
+            
             string chatModel, textEmbeddingModel, azureAPIEndpoint, azureAPIKey;
 
             ReadDataFromConfig(out chatModel, out textEmbeddingModel, out azureAPIEndpoint, out azureAPIKey);

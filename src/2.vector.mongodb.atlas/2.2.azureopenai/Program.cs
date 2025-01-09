@@ -17,6 +17,8 @@ namespace HelloVector
     {
         static async Task Main(string[] args)
         {
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
+            
             string chatModel, textEmbeddingModel, azureAPIEndpoint, azureAPIKey;
             string mongodbConnectionString, mongodbSearchIndexName, mongodbDatabaseName, mongodbCollectionName;
 

@@ -6,6 +6,8 @@ using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.Ollama;
 using OllamaFunctionCalling;
 
+Console.OutputEncoding = System.Text.Encoding.UTF8;
+
 var builder = Kernel.CreateBuilder();
 var modelId = "llama3.2";
 var endpoint = new Uri("http://localhost:11434");

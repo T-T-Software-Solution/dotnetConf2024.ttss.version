@@ -16,6 +16,8 @@ namespace SemanticKernelGettingStarted
     {
         static async Task Main(string[] args)
         {
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
+            
             // Populate values from your OpenAI deployment
             string aiMode;
             string ollamaChatModel, ollamaAPIEndpoint;

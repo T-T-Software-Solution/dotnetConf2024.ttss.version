@@ -6,6 +6,8 @@ bool useAzureOpenAI;
 string azureChatModel, azureTextEmbeddingModel, azureAPIEndpoint, azureAPIKey;
 string ollamaChatModel, ollamaTextEmbeddingModel, ollamaAPIEndpoint;
 
+Console.OutputEncoding = System.Text.Encoding.UTF8;
+
 Utils.ReadDataFromConfig(
     out useAzureOpenAI,
     out azureChatModel, out azureTextEmbeddingModel, out azureAPIEndpoint, out azureAPIKey,

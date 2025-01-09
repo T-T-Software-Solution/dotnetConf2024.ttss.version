@@ -19,6 +19,8 @@ public static class Program
 
     public static async Task Main(string[] args)
     {
+        Console.OutputEncoding = System.Text.Encoding.UTF8;
+        
         memoryBuilder = new MemoryBuilder();
         memoryBuilder.WithOpenAITextEmbeddingGeneration(
             TextEmbeddingModelName,

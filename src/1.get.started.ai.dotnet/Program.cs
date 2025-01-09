@@ -2,6 +2,8 @@
 using Microsoft.SemanticKernel.Connectors.OpenAI;
 using Microsoft.Extensions.Configuration; // Ensure this line is present
 
+Console.OutputEncoding = System.Text.Encoding.UTF8;
+
 // สร้างอินสแตนซ์ของบริการแชท OpenAI Platform โดยใช้โมเดล gpt-4o-mini และคีย์ API
 IConfiguration configuration = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json") // Assuming the configuration is stored in an appsettings.json file
