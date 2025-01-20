@@ -397,3 +397,12 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 /src/5.rag.hr.qdrant/qdrant_storage
+src/1.get.started.ai.dotnet.advance/appsettings.json
+src/1.get.started.ai.dotnet/appsettings.json
+src/2.vector.mongodb.atlas/2.2.azureopenai/appsettings.json
+src/2.vector/appsettings.json
+src/4.semantickernel.plugins/appsettings.json
+src/5.rag.benchmark/appsettings.json
+src/5.rag.customer.support/appsettings.json
+src/5.rag.hr.qdrant/hello-qdrant/appsettings.json
+src/5.rag.hr/appsettings.json
