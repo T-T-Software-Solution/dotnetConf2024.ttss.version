@@ -1,0 +1,1357 @@
+{
+	"info": {
+		"_postman_id": "8bfb3943-f3a7-40ca-be31-be3fe7f61f1e",
+		"name": "Qdrant",
+		"description": "[https://qdrant.github.io/qdrant/redoc/index.html](https://qdrant.github.io/qdrant/redoc/index.html)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "26015933"
+	},
+	"item": [
+		{
+			"name": "1: Quickstart",
+			"item": [
+				{
+					"name": "1: Create a collection",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"vectors\": {\n    \"size\": 4,\n    \"distance\": \"Dot\"\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{qdrant_host}}:{{qdrant_port}}/collections/{{quickstart_collection_name}}",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{qdrant_host}}"
+							],
+							"port": "{{qdrant_port}}",
+							"path": [
+								"collections",
+								"{{quickstart_collection_name}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2: Load data into the collection",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"points\": [\n    {\n      \"id\": 1,\n      \"vector\": [0.05, 0.61, 0.76, 0.74],\n      \"payload\": {\n        \"colony\": \"Mars\"\n      }\n    },\n    {\n      \"id\": 2,\n      \"vector\": [0.19, 0.81, 0.75, 0.11],\n      \"payload\": {\n        \"colony\": \"Jupiter\"\n      }\n    },\n    {\n      \"id\": 3,\n      \"vector\": [0.36, 0.55, 0.47, 0.94],\n      \"payload\": {\n        \"colony\": \"Venus\"\n      }\n    },\n    {\n      \"id\": 4,\n      \"vector\": [0.18, 0.01, 0.85, 0.80],\n      \"payload\": {\n        \"colony\": \"Moon\"\n      }\n    },\n    {\n      \"id\": 5,\n      \"vector\": [0.24, 0.18, 0.22, 0.44],\n      \"payload\": {\n        \"colony\": \"Pluto\"\n      }\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{qdrant_host}}:{{qdrant_port}}/collections/{{quickstart_collection_name}}/points",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{qdrant_host}}"
+							],
+							"port": "{{qdrant_port}}",
+							"path": [
+								"collections",
+								"{{quickstart_collection_name}}",
+								"points"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3: Run a search query",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"vector\": [0.05, 0.61, 0.76, 0.74],\n  \"limit\": 5,\n  \"with_payload\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{qdrant_host}}:{{qdrant_port}}/collections/{{quickstart_collection_name}}/points/search",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{qdrant_host}}"
+							],
+							"port": "{{qdrant_port}}",
+							"path": [
+								"collections",
+								"{{quickstart_collection_name}}",
+								"points",
+								"search"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "2: Load Data from Remote Snashot",
+			"item": [
+				{
+					"name": "1: Import a snapshot to a collection",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"location\": \"http://snapshots.qdrant.io/midlib.snapshot\"\n}\n\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{qdrant_host}}:{{qdrant_port}}/collections/{{remote_collection_name}}/snapshots/recover",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{qdrant_host}}"
+							],
+							"port": "{{qdrant_port}}",
+							"path": [
+								"collections",
+								"{{remote_collection_name}}",
+								"snapshots",
+								"recover"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2: Verify the data upload",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"location\": \"http://snapshots.qdrant.io/midlib.snapshot\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{qdrant_host}}:{{qdrant_port}}/collections/{{remote_collection_name}}/points/count",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{qdrant_host}}"
+							],
+							"port": "{{qdrant_port}}",
+							"path": [
+								"collections",
+								"{{remote_collection_name}}",
+								"points",
+								"count"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "3: Filtering - Beginner",
+			"item": [
+				{
+					"name": "1: Create a collection",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"vectors\": {\n    \"size\": 4,\n    \"distance\": \"Dot\"\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{qdrant_host}}:{{qdrant_port}}/collections/{{basic_filter_collection_name}}",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{qdrant_host}}"
+							],
+							"port": "{{qdrant_port}}",
+							"path": [
+								"collections",
+								"{{basic_filter_collection_name}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2: Add Points with Vectors and Payloads",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"points\": [\n    {\n      \"id\": 1,\n      \"vector\": [0.1, 0.2, 0.3, 0.4],\n      \"payload\": {\"land\": \"forest\", \"color\": \"green\", \"life\": true, \"humidity\": 40}\n    },\n    {\n      \"id\": 2,\n      \"vector\": [0.2, 0.3, 0.4, 0.5],\n      \"payload\": {\"land\": \"lake\", \"color\": \"blue\", \"life\": true, \"humidity\": 100}\n    },\n    {\n      \"id\": 3,\n      \"vector\": [0.3, 0.4, 0.5, 0.6],\n      \"payload\": {\"land\": \"steppe\", \"color\": \"green\", \"life\": false, \"humidity\": 25}\n    },\n    {\n      \"id\": 4,\n      \"vector\": [0.4, 0.5, 0.6, 0.7],\n      \"payload\": {\"land\": \"desert\", \"color\": \"red\", \"life\": false, \"humidity\": 5}\n    },\n    {\n      \"id\": 5,\n      \"vector\": [0.5, 0.6, 0.7, 0.8],\n      \"payload\": {\"land\": \"marsh\", \"color\": \"black\", \"life\": true, \"humidity\": 90}\n    },\n    {\n      \"id\": 6,\n      \"vector\": [0.6, 0.7, 0.8, 0.9],\n      \"payload\": {\"land\": \"cavern\", \"color\": \"black\", \"life\": false, \"humidity\": 15}\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{qdrant_host}}:{{qdrant_port}}/collections/{{basic_filter_collection_name}}/points",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{qdrant_host}}"
+							],
+							"port": "{{qdrant_port}}",
+							"path": [
+								"collections",
+								"{{basic_filter_collection_name}}",
+								"points"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3: Filter by exact match",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"filter\": {\n    \"must\": [\n      {\n        \"key\": \"color\",\n        \"match\": {\n          \"value\": \"black\"\n        }\n      }\n    ]\n  },\n  \"limit\": 3,\n  \"with_payload\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{qdrant_host}}:{{qdrant_port}}/collections/{{basic_filter_collection_name}}/points/scroll",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{qdrant_host}}"
+							],
+							"port": "{{qdrant_port}}",
+							"path": [
+								"collections",
+								"{{basic_filter_collection_name}}",
+								"points",
+								"scroll"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4: Combined filter by must clause",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"filter\": {\n    \"must\": [\n      { \"key\": \"life\", \"match\": { \"value\": true } },\n      { \"key\": \"color\", \"match\": { \"value\": \"green\" } }\n    ]\n  },\n  \"limit\": 3,\n  \"with_payload\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{qdrant_host}}:{{qdrant_port}}/collections/{{basic_filter_collection_name}}/points/scroll",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{qdrant_host}}"
+							],
+							"port": "{{qdrant_port}}",
+							"path": [
+								"collections",
+								"{{basic_filter_collection_name}}",
+								"points",
+								"scroll"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "5: Filter by should clause",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"filter\": {\n    \"should\": [\n      {\n        \"key\": \"life\",\n        \"match\": { \"value\": false }\n      }, {\n        \"key\": \"color\",\n        \"match\": { \"value\": \"black\" }\n      }\n    ]\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{qdrant_host}}:{{qdrant_port}}/collections/{{basic_filter_collection_name}}/points/scroll",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{qdrant_host}}"
+							],
+							"port": "{{qdrant_port}}",
+							"path": [
+								"collections",
+								"{{basic_filter_collection_name}}",
+								"points",
+								"scroll"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "6: Filter by must_not clause",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"filter\": {\n    \"must_not\": [\n      {\n       \"key\": \"life\",\n       \"match\": { \"value\": false }\n      }\n    ]\n  },\n  \"limit\": 3,\n  \"with_payload\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{qdrant_host}}:{{qdrant_port}}/collections/{{basic_filter_collection_name}}/points/scroll",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{qdrant_host}}"
+							],
+							"port": "{{qdrant_port}}",
+							"path": [
+								"collections",
+								"{{basic_filter_collection_name}}",
+								"points",
+								"scroll"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "7: Filter by range condition",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"filter\": {\n    \"must\": [\n      {\n       \"key\": \"humidity\",\n       \"range\": {\n         \"gte\": 40,\n         \"lte\": 40\n       }\n      }\n    ]\n  },\n  \"limit\": 3,\n  \"with_payload\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{qdrant_host}}:{{qdrant_port}}/collections/{{basic_filter_collection_name}}/points/scroll",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{qdrant_host}}"
+							],
+							"port": "{{qdrant_port}}",
+							"path": [
+								"collections",
+								"{{basic_filter_collection_name}}",
+								"points",
+								"scroll"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "4: Filtering - Advanced",
+			"item": [
+				{
+					"name": "1: Create a collection",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"vectors\": {\n    \"size\": 4,\n    \"distance\": \"Dot\"\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{qdrant_host}}:{{qdrant_port}}/collections/{{advance_filter_collection_name}}",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{qdrant_host}}"
+							],
+							"port": "{{qdrant_port}}",
+							"path": [
+								"collections",
+								"{{advance_filter_collection_name}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2: Add Points with Vectors and Payloads",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"points\": [\n    {\n      \"id\": 1,\n      \"vector\": [0.1, 0.2, 0.3, 0.4],\n      \"payload\": {\n        \"dinosaur\": \"t-rex\",\n        \"diet\": [\n          { \"food\": \"leaves\", \"likes\": false },\n          { \"food\": \"meat\", \"likes\": true }\n        ]\n      }\n    },\n    {\n      \"id\": 2,\n      \"vector\": [0.2, 0.3, 0.4, 0.5],\n      \"payload\": {\n        \"dinosaur\": \"diplodocus\",\n        \"diet\": [\n          { \"food\": \"leaves\", \"likes\": true },\n          { \"food\": \"meat\", \"likes\": false }\n        ]\n      }\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{qdrant_host}}:{{qdrant_port}}/collections/{{advance_filter_collection_name}}/points",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{qdrant_host}}"
+							],
+							"port": "{{qdrant_port}}",
+							"path": [
+								"collections",
+								"{{advance_filter_collection_name}}",
+								"points"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3: Basic Filtering with match",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"filter\": {\n    \"must\": [\n      {\n        \"key\": \"diet[].food\",\n        \"match\": {\n          \"value\": \"meat\"\n        }\n      },\n      {\n        \"key\": \"diet[].likes\",\n        \"match\": {\n          \"value\": true\n        }\n      }\n    ]\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{qdrant_host}}:{{qdrant_port}}/collections/{{advance_filter_collection_name}}/points/scroll",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{qdrant_host}}"
+							],
+							"port": "{{qdrant_port}}",
+							"path": [
+								"collections",
+								"{{advance_filter_collection_name}}",
+								"points",
+								"scroll"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4: Advanced Filtering with Nested Object Filters",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"filter\": {\n    \"must\": [\n      {\n        \"nested\": {\n          \"key\": \"diet\",\n          \"filter\": {\n            \"must\": [\n              {\n                \"key\": \"food\",\n                \"match\": {\n                  \"value\": \"meat\"\n                }\n              },\n              {\n                \"key\": \"likes\",\n                \"match\": {\n                  \"value\": true\n                }\n              }\n            ]\n          }\n        }\n      }\n    ]\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{qdrant_host}}:{{qdrant_port}}/collections/{{advance_filter_collection_name}}/points/scroll",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{qdrant_host}}"
+							],
+							"port": "{{qdrant_port}}",
+							"path": [
+								"collections",
+								"{{advance_filter_collection_name}}",
+								"points",
+								"scroll"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "5: Combining has_id with Nested Filters",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"filter\": {\n    \"must\": [\n      {\n        \"nested\": {\n          \"key\": \"diet\",\n          \"filter\": {\n            \"must\": [\n              {\n                \"key\": \"food\",\n                \"match\": {\n                  \"value\": \"meat\"\n                }\n              },\n              {\n                \"key\": \"likes\",\n                \"match\": {\n                  \"value\": true\n                }\n              }\n            ]\n          }\n        }\n      },\n      {\n        \"has_id\": [1]\n      }\n    ]\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{qdrant_host}}:{{qdrant_port}}/collections/{{advance_filter_collection_name}}/points/scroll",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{qdrant_host}}"
+							],
+							"port": "{{qdrant_port}}",
+							"path": [
+								"collections",
+								"{{advance_filter_collection_name}}",
+								"points",
+								"scroll"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "5: Filtering - Full Text",
+			"item": [
+				{
+					"name": "1: Create a collection",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"vectors\": {\n    \"size\": 4,\n    \"distance\": \"Dot\"\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{qdrant_host}}:{{qdrant_port}}/collections/{{fulltext_filter_collection_name}}",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{qdrant_host}}"
+							],
+							"port": "{{qdrant_port}}",
+							"path": [
+								"collections",
+								"{{fulltext_filter_collection_name}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2: Add data with descriptions in payload",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"points\": [\n    {\n      \"id\": 1,\n      \"vector\": [0.05, 0.61, 0.76, 0.74],\n      \"payload\": {\n        \"colony\": \"Mars\",\n        \"supports_life\": true,\n        \"description\": \"The red planet, Mars, has a cold desert climate and may have once had conditions suitable for life.\"\n      }\n    },\n    {\n      \"id\": 2,\n      \"vector\": [0.19, 0.81, 0.75, 0.11],\n      \"payload\": {\n        \"colony\": \"Jupiter\",\n        \"supports_life\": false,\n        \"description\": \"Jupiter is the largest planet in the solar system, known for its Great Red Spot and hostile gas environment.\"\n      }\n    },\n    {\n      \"id\": 3,\n      \"vector\": [0.36, 0.55, 0.47, 0.94],\n      \"payload\": {\n        \"colony\": \"Venus\",\n        \"supports_life\": false,\n        \"description\": \"Venus, Earth’s twin in size, has an extremely thick atmosphere and surface temperatures hot enough to melt lead.\"\n      }\n    },\n    {\n      \"id\": 4,\n      \"vector\": [0.18, 0.01, 0.85, 0.80],\n      \"payload\": {\n        \"colony\": \"Moon\",\n        \"supports_life\": true,\n        \"description\": \"Earth’s Moon, long visited by astronauts, is a barren, airless world but could host colonies in its underground caves.\"\n      }\n    },\n    {\n      \"id\": 5,\n      \"vector\": [0.24, 0.18, 0.22, 0.44],\n      \"payload\": {\n        \"colony\": \"Pluto\",\n        \"supports_life\": false,\n        \"description\": \"Once considered the ninth planet, Pluto is a small icy world at the edge of the solar system.\"\n      }\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{qdrant_host}}:{{qdrant_port}}/collections/{{fulltext_filter_collection_name}}/points",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{qdrant_host}}"
+							],
+							"port": "{{qdrant_port}}",
+							"path": [
+								"collections",
+								"{{fulltext_filter_collection_name}}",
+								"points"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3: Try filtering with exact phrase (substring match)",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"filter\": {\n    \"must\": [\n      {\n        \"key\": \"description\",\n        \"match\": {\n          \"text\": \"host colonies\"\n        }\n      }\n    ]\n  },\n  \"limit\": 2,\n  \"with_payload\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{qdrant_host}}:{{qdrant_port}}/collections/{{fulltext_filter_collection_name}}/points/scroll",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{qdrant_host}}"
+							],
+							"port": "{{qdrant_port}}",
+							"path": [
+								"collections",
+								"{{fulltext_filter_collection_name}}",
+								"points",
+								"scroll"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4: Try the filter again",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"filter\": {\n    \"must\": [\n      {\n        \"key\": \"description\",\n        \"match\": {\n          \"text\": \"caves colonies\"\n        }\n      }\n    ]\n  },\n  \"limit\": 2,\n  \"with_payload\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{qdrant_host}}:{{qdrant_port}}/collections/{{fulltext_filter_collection_name}}/points/scroll",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{qdrant_host}}"
+							],
+							"port": "{{qdrant_port}}",
+							"path": [
+								"collections",
+								"{{fulltext_filter_collection_name}}",
+								"points",
+								"scroll"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "5: Index the description field",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"field_name\": \"description\",\n    \"field_schema\": {\n        \"type\": \"text\",\n        \"tokenizer\": \"word\",\n        \"lowercase\": true\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{qdrant_host}}:{{qdrant_port}}/collections/{{fulltext_filter_collection_name}}/index",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{qdrant_host}}"
+							],
+							"port": "{{qdrant_port}}",
+							"path": [
+								"collections",
+								"{{fulltext_filter_collection_name}}",
+								"index"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "6: Try the filter again",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"filter\": {\n    \"must\": [\n      {\n        \"key\": \"description\",\n        \"match\": {\n          \"text\": \"caves colonies\"\n        }\n      }\n    ]\n  },\n  \"limit\": 2,\n  \"with_payload\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{qdrant_host}}:{{qdrant_port}}/collections/{{fulltext_filter_collection_name}}/points/scroll",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{qdrant_host}}"
+							],
+							"port": "{{qdrant_port}}",
+							"path": [
+								"collections",
+								"{{fulltext_filter_collection_name}}",
+								"points",
+								"scroll"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "6: Multivector Search",
+			"item": [
+				{
+					"name": "1: Create a collection",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"vectors\": {\n    \"size\": 4,\n    \"distance\": \"Dot\",\n    \"multivector_config\": {\n      \"comparator\": \"max_sim\"\n    }\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{qdrant_host}}:{{qdrant_port}}/collections/{{multivector_collection_name}}",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{qdrant_host}}"
+							],
+							"port": "{{qdrant_port}}",
+							"path": [
+								"collections",
+								"{{multivector_collection_name}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2: Insert points with multivectors and payloads",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"points\": [\n    {\n      \"id\": 1,\n      \"vector\": [\n        [-0.013,  0.020, -0.007, -0.111],\n        [-0.030, -0.015,  0.021,  0.072],\n        [0.041,  -0.004, 0.032,  0.062]\n      ],\n      \"payload\": {\n        \"name\": \"Mars\",\n        \"type\": \"terrestrial\"\n      }\n    },\n    {\n      \"id\": 2,\n      \"vector\": [\n        [0.011,  -0.050,  0.007,  0.101],\n        [0.031,  0.014,  -0.032,  0.012]\n      ],\n      \"payload\": {\n        \"name\": \"Jupiter\",\n        \"type\": \"gas giant\"\n      }\n    },\n    {\n      \"id\": 3,\n      \"vector\": [\n        [0.041,  0.034,  -0.012, -0.022],\n        [0.040,  -0.095,  0.021,  0.032],\n        [-0.030,  0.025,  0.011,  0.082],\n        [0.021,  -0.044,  0.032, -0.032]\n      ],\n      \"payload\": {\n        \"name\": \"Venus\",\n        \"type\": \"terrestrial\"\n      }\n    },\n    {\n      \"id\": 4,\n      \"vector\": [\n        [-0.015,  0.020,  0.045,  -0.131],\n        [0.041,   -0.024, -0.032,  0.072]\n      ],\n      \"payload\": {\n        \"name\": \"Neptune\",\n        \"type\": \"ice giant\"\n      }\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{qdrant_host}}:{{qdrant_port}}/collections/{{multivector_collection_name}}/points",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{qdrant_host}}"
+							],
+							"port": "{{qdrant_port}}",
+							"path": [
+								"collections",
+								"{{multivector_collection_name}}",
+								"points"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3: Query the collection",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": [\n    [-0.015,  0.020,  0.045,  -0.131],\n    [0.030,   -0.005, 0.001,   0.022],\n    [0.041,   -0.024, -0.032,  0.072]\n  ],\n  \"with_payload\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{qdrant_host}}:{{qdrant_port}}/collections/{{multivector_collection_name}}/points/query",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{qdrant_host}}"
+							],
+							"port": "{{qdrant_port}}",
+							"path": [
+								"collections",
+								"{{multivector_collection_name}}",
+								"points",
+								"query"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "7: Sparse Vector Search",
+			"item": [
+				{
+					"name": "1: Create a collection with sparse vectors",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"sparse_vectors\": {\n        \"keywords\": {}\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{qdrant_host}}:{{qdrant_port}}/collections/{{sparsecharts_collection_name}}",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{qdrant_host}}"
+							],
+							"port": "{{qdrant_port}}",
+							"path": [
+								"collections",
+								"{{sparsecharts_collection_name}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2: Insert data points with sparse vectors",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"points\": [\n        {\n            \"id\": 1,\n            \"vector\": {\n                \"keywords\": {\n                    \"indices\": [1, 42],\n                    \"values\": [0.22, 0.8]\n                }\n            }\n        },\n        {\n            \"id\": 2,\n            \"vector\": {\n                \"keywords\": {\n                    \"indices\": [2, 35],\n                    \"values\": [0.15, 0.65]\n                }\n            }\n        },\n        {\n            \"id\": 3,\n            \"vector\": {\n                \"keywords\": {\n                    \"indices\": [10, 42],\n                    \"values\": [0.3, 0.5]\n                }\n            }\n        },\n        {\n            \"id\": 4,\n            \"vector\": {\n                \"keywords\": {\n                    \"indices\": [0, 3],\n                    \"values\": [0.4, 0.3]\n                }\n            }\n        },\n        {\n            \"id\": 5,\n            \"vector\": {\n                \"keywords\": {\n                    \"indices\": [2, 4],\n                    \"values\": [0.9, 0.8]\n                }\n            }\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{qdrant_host}}:{{qdrant_port}}/collections/{{sparsecharts_collection_name}}/points",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{qdrant_host}}"
+							],
+							"port": "{{qdrant_port}}",
+							"path": [
+								"collections",
+								"{{sparsecharts_collection_name}}",
+								"points"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3: Run a query with specific indices and values",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": {\n        \"indices\": [1, 42],\n        \"values\": [0.22, 0.8]\n    },\n    \"using\": \"keywords\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{qdrant_host}}:{{qdrant_port}}/collections/{{sparsecharts_collection_name}}/points/query",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{qdrant_host}}"
+							],
+							"port": "{{qdrant_port}}",
+							"path": [
+								"collections",
+								"{{sparsecharts_collection_name}}",
+								"points",
+								"query"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4: Breaking down the scoring mechanism",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": {\n        \"indices\": [0, 2, 4],\n        \"values\": [0.4, 0.9, 0.8]\n    },\n    \"using\": \"keywords\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{qdrant_host}}:{{qdrant_port}}/collections/{{sparsecharts_collection_name}}/points/query",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{qdrant_host}}"
+							],
+							"port": "{{qdrant_port}}",
+							"path": [
+								"collections",
+								"{{sparsecharts_collection_name}}",
+								"points",
+								"query"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "8: Hybrid Search",
+			"item": [
+				{
+					"name": "1: Create a collection with sparse vectors",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"vectors\": {\n        \"size\": 4,  \n        \"distance\": \"Cosine\"  \n    },\n    \"sparse_vectors\": {\n        \"keywords\": { }\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{qdrant_host}}:{{qdrant_port}}/collections/{{hybrid_search_collection_name}}",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{qdrant_host}}"
+							],
+							"port": "{{qdrant_port}}",
+							"path": [
+								"collections",
+								"{{hybrid_search_collection_name}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2: Insert data points with descriptions",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"points\": [\n        {\n            \"id\": 1,  \n            \"vector\": {\n                \"\": [0.02, 0.4, 0.5, 0.9],   // Dense vector\n                \"keywords\": {\n                   \"indices\": [1, 42],    // Sparse for \"rocky\" and \"Mars\"\n                   \"values\": [0.22, 0.8]  // Weights for these keywords\n                }\n            },\n            \"payload\": {\n                \"description\": \"Plans about Mars colonization.\"\n            }\n        },\n        {\n            \"id\": 2,  \n            \"vector\": {\n                \"\": [0.3, 0.1, 0.6, 0.4],   \n                \"keywords\": {\n                   \"indices\": [2, 35],    // Sparse for \"gas giant\" and \"icy\"\n                   \"values\": [0.15, 0.65]  // Weights for these keywords\n                }\n            },\n            \"payload\": {\n                \"description\": \"Study on Jupiter gas composition.\"\n            }\n        },\n        {\n            \"id\": 3,  \n            \"vector\": {\n                \"\": [0.7, 0.5, 0.3, 0.8],   \n                \"keywords\": {\n                   \"indices\": [10, 42],    // Sparse for \"Venus\" and \"rocky\"\n                   \"values\": [0.3, 0.5]    // Weights for these keywords\n                }\n            },\n            \"payload\": {\n                \"description\": \"Venus geological terrain analysis.\"\n            }\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{qdrant_host}}:{{qdrant_port}}/collections/{{hybrid_search_collection_name}}/points",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{qdrant_host}}"
+							],
+							"port": "{{qdrant_port}}",
+							"path": [
+								"collections",
+								"{{hybrid_search_collection_name}}",
+								"points"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3: Perform a hybrid search",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"prefetch\": [\n        {\n            \"query\": { \n                \"indices\": [1, 42],   \n                \"values\": [0.22, 0.8]  \n            },\n            \"using\": \"keywords\",\n            \"limit\": 20\n        },\n        {\n            \"query\": [0.01, 0.45, 0.67, 0.89],\n            \"using\": \"\",\n            \"limit\": 20\n        }\n    ],\n    \"query\": { \"fusion\": \"rrf\" },  // Reciprocal rank fusion\n    \"limit\": 10,\n    \"with_payload\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{qdrant_host}}:{{qdrant_port}}/collections/{{hybrid_search_collection_name}}/points/query",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{qdrant_host}}"
+							],
+							"port": "{{qdrant_port}}",
+							"path": [
+								"collections",
+								"{{hybrid_search_collection_name}}",
+								"points",
+								"query"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "9: Multitenancy",
+			"item": [
+				{
+					"name": "1: Create a collection",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"vectors\": {\n    \"size\": 4,\n    \"distance\": \"Dot\"\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{qdrant_host}}:{{qdrant_port}}/collections/{{multitenancy_collection_name}}",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{qdrant_host}}"
+							],
+							"port": "{{qdrant_port}}",
+							"path": [
+								"collections",
+								"{{multitenancy_collection_name}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2: Build a tenant index",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"field_name\": \"group_id\",\n    \"field_schema\": {\n        \"type\": \"keyword\",\n        \"is_tenant\": true\n    }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{qdrant_host}}:{{qdrant_port}}/collections/{{multitenancy_collection_name}}/index",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{qdrant_host}}"
+							],
+							"port": "{{qdrant_port}}",
+							"path": [
+								"collections",
+								"{{multitenancy_collection_name}}",
+								"index"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3: Load vectors for tenants",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"points\": [\n    {\n      \"id\": 1,\n      \"vector\": [0.1, 0.2, 0.3, 0.4],    \n      \"payload\": {\n        \"group_id\": \"user_1\",\n        \"station\": \"Communications\",\n        \"message_log\": \"Contact with colony headquarters.\"\n      }\n    },\n    {\n      \"id\": 2,\n      \"vector\": [0.5, 0.6, 0.7, 0.8],\n      \"payload\": {\n        \"group_id\": \"user_2\",\n        \"station\": \"Security\",\n        \"message_log\": \"Monitor intruder alert system.\"\n      }\n    },\n    {\n      \"id\": 3,\n      \"vector\": [0.9, 1.0, 1.1, 1.2],\n      \"payload\": {\n        \"group_id\": \"user_3\",\n        \"station\": \"Engineering\",\n        \"message_log\": \"Repair warp core malfunction.\"\n      }\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{qdrant_host}}:{{qdrant_port}}/collections/{{multitenancy_collection_name}}/points",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{qdrant_host}}"
+							],
+							"port": "{{qdrant_port}}",
+							"path": [
+								"collections",
+								"{{multitenancy_collection_name}}",
+								"points"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "4: Perform a filtered query without tagged",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": [0.2, 0.1, 0.9, 0.7],\n    \"limit\": 3,\n    \"with_payload\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{qdrant_host}}:{{qdrant_port}}/collections/{{multitenancy_collection_name}}/points/query",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{qdrant_host}}"
+							],
+							"port": "{{qdrant_port}}",
+							"path": [
+								"collections",
+								"{{multitenancy_collection_name}}",
+								"points",
+								"query"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "5: Perform a filtered query with tagged",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": [0.2, 0.1, 0.9, 0.7],\n    \"filter\": {\n        \"must\": [\n            {\n                \"key\": \"group_id\",\n                \"match\": {\n                    \"value\": \"user_1\"\n                }\n            }\n        ]\n    },\n    \"limit\": 2,\n    \"with_payload\": true\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{qdrant_host}}:{{qdrant_port}}/collections/{{multitenancy_collection_name}}/points/query",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{qdrant_host}}"
+							],
+							"port": "{{qdrant_port}}",
+							"path": [
+								"collections",
+								"{{multitenancy_collection_name}}",
+								"points",
+								"query"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "6: Add more data",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"points\": [\n    {\n      \"id\": 4,\n      \"vector\": [0.89, 0.95, 1.03, 0.99],\n      \"payload\": {\n        \"group_id\": \"user_4\",\n        \"station\": \"Medical\",\n        \"message_log\": \"Prepare medical supplies.\"\n      }\n    },\n    {\n      \"id\": 5,\n      \"vector\": [0.82, 0.87, 0.83, 0.88],\n      \"payload\": {\n        \"group_id\": \"user_5\",\n        \"station\": \"Operations\",\n        \"message_log\": \"Schedule maintenance for the day.\"\n      }\n    },\n    {\n      \"id\": 6,\n      \"vector\": [0.91, 1.05, 0.96, 0.90],\n      \"payload\": {\n        \"group_id\": \"user_1\",\n        \"station\": \"Communications\",\n        \"message_log\": \"Dispatch signal to rescue team.\"\n      }\n    },\n    {\n      \"id\": 7,\n      \"vector\": [0.78, 0.86, 0.84, 0.81],\n      \"payload\": {\n        \"group_id\": \"user_2\",\n        \"station\": \"Security\",\n        \"message_log\": \"Check perimeter for breaches.\"\n      }\n    },\n    {\n      \"id\": 8,\n      \"vector\": [1.04, 0.97, 1.01, 0.93],\n      \"payload\": {\n        \"group_id\": \"user_3\",\n        \"station\": \"Engineering\",\n        \"message_log\": \"Run diagnostics on the shield generator.\"\n      }\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{qdrant_host}}:{{qdrant_port}}/collections/{{multitenancy_collection_name}}/points",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{qdrant_host}}"
+							],
+							"port": "{{qdrant_port}}",
+							"path": [
+								"collections",
+								"{{multitenancy_collection_name}}",
+								"points"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "7: Group query results",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"query\": [0.01, 0.45, 0.6, 0.88],\n    \"group_by\": \"station\",  \n    \"limit\": 5,  \n    \"group_size\": 5,\n    \"with_payload\": true  \n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{protocol}}://{{qdrant_host}}:{{qdrant_port}}/collections/{{multitenancy_collection_name}}/points/query/groups",
+							"protocol": "{{protocol}}",
+							"host": [
+								"{{qdrant_host}}"
+							],
+							"port": "{{qdrant_port}}",
+							"path": [
+								"collections",
+								"{{multitenancy_collection_name}}",
+								"points",
+								"query",
+								"groups"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "protocol",
+			"value": "http",
+			"type": "string"
+		},
+		{
+			"key": "qdrant_host",
+			"value": "localhost",
+			"type": "string"
+		},
+		{
+			"key": "qdrant_port",
+			"value": "6333",
+			"type": "string"
+		},
+		{
+			"key": "qdrant_grpc_port",
+			"value": "6334",
+			"type": "string"
+		},
+		{
+			"key": "quickstart_collection_name",
+			"value": "1_Quickstart",
+			"type": "string"
+		},
+		{
+			"key": "remote_collection_name",
+			"value": "2_RemoteSnapshot",
+			"type": "string"
+		},
+		{
+			"key": "basic_filter_collection_name",
+			"value": "3_FilterBeginner",
+			"type": "string"
+		},
+		{
+			"key": "advance_filter_collection_name",
+			"value": "4_FilterAdvance",
+			"type": "string"
+		},
+		{
+			"key": "fulltext_filter_collection_name",
+			"value": "5_FilterFullText",
+			"type": "string"
+		},
+		{
+			"key": "multivector_collection_name",
+			"value": "6_MultiVector",
+			"type": "string"
+		},
+		{
+			"key": "sparsecharts_collection_name",
+			"value": "7_SparseCharts",
+			"type": "string"
+		},
+		{
+			"key": "hybrid_search_collection_name",
+			"value": "8_HybridSearch",
+			"type": "string"
+		},
+		{
+			"key": "multitenancy_collection_name",
+			"value": "9_Multitenancy",
+			"type": "string"
+		}
+	]
+}
