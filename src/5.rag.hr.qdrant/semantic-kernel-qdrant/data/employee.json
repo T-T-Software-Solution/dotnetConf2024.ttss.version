@@ -1,0 +1,161 @@
+[
+    {
+        "EmployeeId": 1,
+        "FullName": "สมชาย ใจดี",
+        "Position": "วิศวกรซอฟต์แวร์",
+        "EmploymentStatus": "Open",
+        "InteractionHistory": [
+            {
+                "InteractionId": 1,
+                "Date": "2024-01-15",
+                "Content": "วันหยุดที่เหลือของผมมีกี่วัน?",
+                "AIResponse": "คุณเหลือวันหยุดจำนวน 12 วันครับ"
+            },
+            {
+                "InteractionId": 2,
+                "Date": "2024-01-16",
+                "Content": "ผมสามารถเบิกค่าเดินทางได้เท่าไหร่?",
+                "AIResponse": "คุณสามารถเบิกค่าเดินทางได้สูงสุด 3,000 บาทต่อเดือนครับ"
+            }
+        ]
+    },
+    {
+        "EmployeeId": 2,
+        "FullName": "อารยา วัฒนชัย",
+        "Position": "ผู้จัดการฝ่ายการตลาด",
+        "EmploymentStatus": "Open",
+        "InteractionHistory": [
+            {
+                "InteractionId": 1,
+                "Date": "2024-01-10",
+                "Content": "ผมต้องทำอย่างไรเพื่อขออนุมัติวันหยุด?",
+                "AIResponse": "กรุณากรอกแบบฟอร์มขออนุมัติในระบบ HR และรอผู้จัดการอนุมัติครับ"
+            },
+            {
+                "InteractionId": 2,
+                "Date": "2024-01-18",
+                "Content": "ผลงานของทีมในปีนี้เป็นอย่างไรบ้าง?",
+                "AIResponse": "ทีมของคุณได้บรรลุเป้าหมาย 95% ของแผนงานที่วางไว้ครับ"
+            }
+        ]
+    },
+    {
+        "EmployeeId": 3,
+        "FullName": "จันทร์เพ็ญ บุญธรรม",
+        "Position": "เจ้าหน้าที่บัญชี",
+        "EmploymentStatus": "Open",
+        "InteractionHistory": [
+            {
+                "InteractionId": 1,
+                "Date": "2024-01-12",
+                "Content": "วิธีขอเอกสารรับรองเงินเดือนทำอย่างไร?",
+                "AIResponse": "คุณสามารถยื่นคำขอเอกสารรับรองเงินเดือนได้ในระบบ HR และจะได้รับการอนุมัติภายใน 3 วันทำการครับ"
+            },
+            {
+                "InteractionId": 2,
+                "Date": "2024-01-20",
+                "Content": "สามารถเปลี่ยนวันจ่ายเงินเดือนได้ไหม?",
+                "AIResponse": "วันจ่ายเงินเดือนไม่สามารถเปลี่ยนแปลงได้ครับ โดยจะจ่ายทุกวันที่ 25 ของเดือน"
+            }
+        ]
+    },
+    {
+        "EmployeeId": 4,
+        "FullName": "พิชัย สมบัติ",
+        "Position": "วิศวกรไฟฟ้า",
+        "EmploymentStatus": "Closed",
+        "InteractionHistory": [
+            {
+                "InteractionId": 1,
+                "Date": "2024-01-15",
+                "IsEmployeeQuestion": true,
+                "Content": "ผมต้องการเอกสารยืนยันการทำงานในตำแหน่งเก่าของผมครับ",
+                "AIResponse": "คุณสามารถขอเอกสารยืนยันการทำงานได้โดยกรอกแบบฟอร์มคำร้องในระบบ HR ครับ"
+            }
+        ]
+    },
+    {
+        "EmployeeId": 5,
+        "FullName": "นฤมล ทองคำ",
+        "Position": "นักวิเคราะห์ข้อมูล",
+        "EmploymentStatus": "Open",
+        "InteractionHistory": [
+            {
+                "InteractionId": 1,
+                "Date": "2024-01-22",
+                "Content": "ขอคำแนะนำเรื่องการเข้าร่วมอบรมเพิ่มเติม",
+                "AIResponse": "คุณสามารถดูตารางอบรมและลงทะเบียนได้ในหน้า 'อบรมและพัฒนา' ของระบบ HR ครับ"
+            }
+        ]
+    },
+    {
+        "EmployeeId": 6,
+        "FullName": "วิทยา เจริญสุข",
+        "Position": "นักออกแบบกราฟิก",
+        "EmploymentStatus": "Open",
+        "InteractionHistory": [
+            {
+                "InteractionId": 1,
+                "Date": "2024-01-21",
+                "Content": "ผมขอคำแนะนำเรื่องการออกแบบโลโก้ใหม่สำหรับลูกค้าได้ไหม?",
+                "AIResponse": "คุณสามารถดูตัวอย่างและแนวทางการออกแบบโลโก้ได้ในคู่มือของทีมออกแบบครับ"
+            }
+        ]
+    },
+    {
+        "EmployeeId": 7,
+        "FullName": "สุวรรณา เพิ่มสุข",
+        "Position": "เจ้าหน้าที่ฝ่ายบุคคล",
+        "EmploymentStatus": "Closed",
+        "InteractionHistory": [
+            {
+                "InteractionId": 1,
+                "Date": "2024-01-22",
+                "Content": "ฉันต้องการข้อมูลเกี่ยวกับการจัดการเอกสารพนักงานใหม่",
+                "AIResponse": "ข้อมูลทั้งหมดสามารถดูได้ในหน้า 'จัดการพนักงาน' บนระบบ HR ครับ"
+            }
+        ]
+    },
+    {
+        "EmployeeId": 8,
+        "FullName": "กิตติชัย ทองดี",
+        "Position": "วิศวกรซ่อมบำรุง",
+        "EmploymentStatus": "Open",
+        "InteractionHistory": [
+            {
+                "InteractionId": 1,
+                "Date": "2024-01-23",
+                "Content": "มีการอบรมเกี่ยวกับการซ่อมบำรุงเครื่องจักรในเร็วๆ นี้ไหม?",
+                "AIResponse": "มีครับ การอบรมจะจัดขึ้นในวันที่ 1 กุมภาพันธ์ คุณสามารถลงทะเบียนได้ในหน้า 'อบรมและพัฒนา'"
+            }
+        ]
+    },
+    {
+        "EmployeeId": 9,
+        "FullName": "สุภาพร ศรีวิชัย",
+        "Position": "เจ้าหน้าที่ฝ่ายจัดซื้อ",
+        "EmploymentStatus": "Closed",
+        "InteractionHistory": [
+            {
+                "InteractionId": 1,
+                "Date": "2024-01-24",
+                "Content": "ฉันสามารถขออนุมัติการสั่งซื้อสินค้าใหม่ผ่านช่องทางไหน?",
+                "AIResponse": "กรุณาใช้ระบบ e-Procurement สำหรับการขออนุมัติการสั่งซื้อครับ"
+            }
+        ]
+    },
+    {
+        "EmployeeId": 10,
+        "FullName": "ประวิทย์ สุขสม",
+        "Position": "นักวิเคราะห์ระบบ",
+        "EmploymentStatus": "Open",
+        "InteractionHistory": [
+            {
+                "InteractionId": 1,
+                "Date": "2024-01-25",
+                "Content": "ผมต้องการข้อมูลเกี่ยวกับกระบวนการพัฒนาระบบล่าสุด",
+                "AIResponse": "คุณสามารถตรวจสอบรายละเอียดกระบวนการพัฒนาระบบได้ในคู่มือ 'Development Process' บน Intranet ครับ"
+            }
+        ]
+    }
+]
