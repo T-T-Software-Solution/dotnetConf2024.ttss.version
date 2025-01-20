@@ -406,3 +406,4 @@ src/5.rag.benchmark/appsettings.json
 src/5.rag.customer.support/appsettings.json
 src/5.rag.hr.qdrant/hello-qdrant/appsettings.json
 src/5.rag.hr/appsettings.json
+src/5.rag.hr.qdrant/hello-qdrant/appsettings.json
