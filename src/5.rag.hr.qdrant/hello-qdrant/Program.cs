@@ -1,14 +1,32 @@
-﻿using Qdrant.Client;
+﻿using Microsoft.Extensions.Configuration;
+using Qdrant.Client;
 using Qdrant.Client.Grpc;
 using static Qdrant.Client.Grpc.Conditions;
 
+// Configurations
+string qdrantHost, qdrantApiKey;
+ReadDataFromConfig(out qdrantHost, out qdrantApiKey);
+
 var client = CreateClient(isLocal: true);
-//var client = CreateClient(isLocal: false, host: "your api url" apiKey: "your api key");
+// client = CreateClient(isLocal: false, 
+//     host: qdrantHost, 
+//     apiKey: qdrantApiKey);
 
 await CreateCollection(client);
 await UpsertPoints(client);
 await RunSimpleSearch(client);
 await RunFilterSearch(client);
+
+static void ReadDataFromConfig(out string qdrantHost, out string qdrantApiKey)    
+    {
+        IConfiguration configuration = new ConfigurationBuilder()
+                        .AddJsonFile("appsettings.json")
+                        .Build();
+
+        qdrantHost = configuration["QdrantCloud:Host"] ?? throw new ArgumentNullException("QdrantCloud:Host");
+        qdrantApiKey = configuration["QdrantCloud:ApiKey"] ?? throw new ArgumentNullException("QdrantCloud:ApiKey");
+    }
+
 
 static async Task CreateCollection(QdrantClient client)
 {
