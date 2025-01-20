@@ -27,6 +27,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "4.semantickernel.plugin", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "4.semantickernel.plugin.ollama", "src\4.semantickernel.plugins.ollama\4.semantickernel.plugin.ollama.csproj", "{DD9C968A-21AE-4804-9D89-90033B66CEF7}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "5.rag.hr.qdrant", "5.rag.hr.qdrant", "{C2C17B05-0A51-424C-A0B0-5FC9CB195762}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "hello-qdrant", "src\5.rag.hr.qdrant\hello-qdrant\hello-qdrant.csproj", "{1DAAA1E6-F901-4068-9AFB-220488924DA6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "semantic-kernel-qdrant", "src\5.rag.hr.qdrant\semantic-kernel-qdrant\semantic-kernel-qdrant.csproj", "{62742470-D7B8-4713-86E2-8E3170E77D74}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -77,6 +83,14 @@ Global
 		{DD9C968A-21AE-4804-9D89-90033B66CEF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DD9C968A-21AE-4804-9D89-90033B66CEF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DD9C968A-21AE-4804-9D89-90033B66CEF7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1DAAA1E6-F901-4068-9AFB-220488924DA6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1DAAA1E6-F901-4068-9AFB-220488924DA6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1DAAA1E6-F901-4068-9AFB-220488924DA6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1DAAA1E6-F901-4068-9AFB-220488924DA6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{62742470-D7B8-4713-86E2-8E3170E77D74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{62742470-D7B8-4713-86E2-8E3170E77D74}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{62742470-D7B8-4713-86E2-8E3170E77D74}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{62742470-D7B8-4713-86E2-8E3170E77D74}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -93,6 +107,9 @@ Global
 		{AF0ED0EF-1051-4960-B905-53C9986A1971} = {822A8DB8-60CE-4C44-9089-C963BECC508C}
 		{0860DD54-2A54-4A20-9A9F-1C24C24EB78A} = {822A8DB8-60CE-4C44-9089-C963BECC508C}
 		{DD9C968A-21AE-4804-9D89-90033B66CEF7} = {822A8DB8-60CE-4C44-9089-C963BECC508C}
+		{C2C17B05-0A51-424C-A0B0-5FC9CB195762} = {822A8DB8-60CE-4C44-9089-C963BECC508C}
+		{1DAAA1E6-F901-4068-9AFB-220488924DA6} = {C2C17B05-0A51-424C-A0B0-5FC9CB195762}
+		{62742470-D7B8-4713-86E2-8E3170E77D74} = {C2C17B05-0A51-424C-A0B0-5FC9CB195762}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7CB0A261-F2CF-44C1-9127-85C167D21B22}
