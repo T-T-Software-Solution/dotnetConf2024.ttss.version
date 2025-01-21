@@ -3,11 +3,11 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
-    <RootNamespace>semantic_kernel_qdrant</RootNamespace>
+    <RootNamespace>rag_pdf_thai</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
-  <ItemGroup>
+<ItemGroup>
     <PackageReference Include="Azure.AI.OpenAI" Version="2.1.0-beta.1" />
     <PackageReference Include="Azure.Identity" Version="1.12.0" />
     <PackageReference Include="Microsoft.Extensions.AI" Version="9.0.0-preview.9.24525.1" />
