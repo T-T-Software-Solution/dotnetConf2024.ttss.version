@@ -1,19 +1,85 @@
-﻿using Microsoft.SemanticKernel.Connectors.Qdrant;
+﻿#pragma warning disable
+using Microsoft.SemanticKernel.Connectors.Qdrant;
 using Microsoft.Extensions.VectorData;
 using Qdrant.Client;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.AI;
+using Microsoft.SemanticKernel.Memory;
+using Microsoft.SemanticKernel.Embeddings;
+using Microsoft.SemanticKernel.Connectors.AzureOpenAI;
+using Microsoft.SemanticKernel.Connectors.Ollama;
+using OllamaSharp;
 
-var hotels = GetHotels();
 
-QdrantVectorStore vectorStore = CreateQdrantVectorStoreClient();
+bool useQdrantCloud;
+string qdrantHost, qdrantApiKey;
+
+bool useAzureOpenAI;
+string azureTextEmbeddingModel, azureAPIEndpoint, azureAPIKey;
+string ollamaTextEmbeddingModel, ollamaAPIEndpoint;
+
+ReadDataFromConfig(
+    out useQdrantCloud,
+    out qdrantHost, out qdrantApiKey,
+    out useAzureOpenAI,
+    out azureTextEmbeddingModel, out azureAPIEndpoint, out azureAPIKey,
+    out ollamaTextEmbeddingModel, out ollamaAPIEndpoint);
+
+using var ollamaClient = new OllamaApiClient(
+    uriString: ollamaAPIEndpoint,    // E.g. "http://localhost:11434" if Ollama has been started in docker as described above.
+    defaultModel: ollamaTextEmbeddingModel // E.g. "mxbai-embed-large" if mxbai-embed-large was downloaded as described above.
+);
+
+ITextEmbeddingGenerationService embeddingGenerator = ollamaClient.AsTextEmbeddingGenerationService();   
+
+if(useAzureOpenAI)
+{
+    embeddingGenerator = new AzureOpenAITextEmbeddingGenerationService(
+        deploymentName: azureTextEmbeddingModel,
+        endpoint: azureAPIEndpoint,
+        apiKey: azureAPIKey);
+}
+
+//var hotels = await GetHotels(embeddingGenerator);
+
+QdrantVectorStore vectorStore = CreateQdrantVectorStoreClient(useQdrantCloud, qdrantHost, qdrantApiKey);
 var collection = await CreateQdrantCollection(vectorStore);
-await UpsertPoints(collection, hotels);
+//await UpsertPoints(collection, hotels);
 
 await TrytoGetAndDisplayaRecordWithoutVectorSearch(collection: collection, hotelId: 1);
 
-string? userPrompt = WaitForUserPrompt();
-await PerformVectorSearch(collection, userPrompt);
+do
+{
+    string? userPrompt = WaitForUserPrompt();
+    await PerformVectorSearch(collection, userPrompt, embeddingGenerator);
+} while (true);
 
-static List<Hotel> GetHotels()
+static void ReadDataFromConfig(
+    out bool useQdrantCloud, out string qdrantHost, out string qdrantApiKey,
+    out bool useAzureOpenAI,
+    out string azureTextEmbeddingModel, out string azureAPIEndpoint, out string azureAPIKey,
+    out string ollamaTextEmbeddingModel, out string ollamaAPIEndpoint)
+
+{
+    IConfiguration configuration = new ConfigurationBuilder()
+                    .AddJsonFile("appsettings.json")
+                    .Build();
+
+    useQdrantCloud = bool.Parse(configuration["useQdrantCloud"] ?? throw new ArgumentNullException("useQdrantCloud"));
+    qdrantHost = configuration["QdrantCloud:Host"] ?? throw new ArgumentNullException("QdrantCloud:Host");
+    qdrantApiKey = configuration["QdrantCloud:ApiKey"] ?? throw new ArgumentNullException("QdrantCloud:ApiKey");
+
+    useAzureOpenAI = bool.Parse(configuration["useAzureOpenAI"] ?? throw new ArgumentNullException("useAzureOpenAI"));
+    azureTextEmbeddingModel = configuration["AzureOpenAI:TextEmbeddingModel"] ?? throw new ArgumentNullException("AzureOpenAI:TextEmbeddingModel");
+    azureAPIEndpoint = configuration["AzureOpenAI:Endpoint"] ?? throw new ArgumentNullException("AzureOpenAI:Endpoint");
+    azureAPIKey = configuration["AzureOpenAI:ApiKey"] ?? throw new ArgumentNullException("AzureOpenAI:ApiKey");
+
+    ollamaTextEmbeddingModel = configuration["Ollama:TextEmbeddingModel"] ?? throw new ArgumentNullException("Ollama:TextEmbeddingModel");
+    ollamaAPIEndpoint = configuration["Ollama:Endpoint"] ?? throw new ArgumentNullException("Ollama:Endpoint");
+}
+
+
+static async Task<List<Hotel>> GetHotels(ITextEmbeddingGenerationService embeddingGenerator)
 {
     ulong hotelId = 1;
     string descriptionText;
@@ -26,7 +92,7 @@ static List<Hotel> GetHotels()
         HotelId = hotelId++,
         HotelName = "โรงแรมแห่งความสุข",
         Description = descriptionText,
-        DescriptionEmbedding = await GenerateEmbeddingAsync(descriptionText),
+        DescriptionEmbedding = await GenerateEmbeddingAsync(descriptionText, embeddingGenerator),
         Tags = new[] { "หรูหรา", "สระว่ายน้ำ" }
     });
 
@@ -36,7 +102,7 @@ static List<Hotel> GetHotels()
         HotelId = hotelId++,
         HotelName = "โรงแรมริมทะเล",
         Description = descriptionText,
-        DescriptionEmbedding = await GenerateEmbeddingAsync(descriptionText),
+        DescriptionEmbedding = await GenerateEmbeddingAsync(descriptionText, embeddingGenerator),
         Tags = new[] { "วิวทะเล", "ครอบครัว" }
     });
 
@@ -46,7 +112,7 @@ static List<Hotel> GetHotels()
         HotelId = hotelId++,
         HotelName = "โรงแรมเงียบสงบ",
         Description = descriptionText,
-        DescriptionEmbedding = await GenerateEmbeddingAsync(descriptionText),
+        DescriptionEmbedding = await GenerateEmbeddingAsync(descriptionText, embeddingGenerator),
         Tags = new[] { "ธรรมชาติ", "ส่วนตัว" }
     });
 
@@ -56,7 +122,7 @@ static List<Hotel> GetHotels()
         HotelId = hotelId++,
         HotelName = "โรงแรมในเมือง",
         Description = descriptionText,
-        DescriptionEmbedding = await GenerateEmbeddingAsync(descriptionText),
+        DescriptionEmbedding = await GenerateEmbeddingAsync(descriptionText, embeddingGenerator),
         Tags = new[] { "ในเมือง", "ใกล้แหล่งช้อปปิ้ง" }
     });
 
@@ -66,7 +132,7 @@ static List<Hotel> GetHotels()
         HotelId = hotelId++,
         HotelName = "โรงแรมสไตล์รีสอร์ท",
         Description = descriptionText,
-        DescriptionEmbedding = await GenerateEmbeddingAsync(descriptionText),
+        DescriptionEmbedding = await GenerateEmbeddingAsync(descriptionText, embeddingGenerator),
         Tags = new[] { "รีสอร์ท", "ธรรมชาติ" }
     });
 
@@ -77,7 +143,7 @@ static List<Hotel> GetHotels()
         HotelId = hotelId++,
         HotelName = "โรงแรมอบอุ่น",
         Description = descriptionText,
-        DescriptionEmbedding = await GenerateEmbeddingAsync(descriptionText),
+        DescriptionEmbedding = await GenerateEmbeddingAsync(descriptionText, embeddingGenerator),
         Tags = new[] { "โรแมนติก", "คู่รัก" }
     });
 
@@ -87,7 +153,7 @@ static List<Hotel> GetHotels()
         HotelId = hotelId++,
         HotelName = "โรงแรมกิจกรรมกลางแจ้ง",
         Description = descriptionText,
-        DescriptionEmbedding = await GenerateEmbeddingAsync(descriptionText),
+        DescriptionEmbedding = await GenerateEmbeddingAsync(descriptionText, embeddingGenerator),
         Tags = new[] { "กิจกรรม", "ครอบครัว" }
     });
 
@@ -97,7 +163,7 @@ static List<Hotel> GetHotels()
         HotelId = hotelId++,
         HotelName = "โรงแรมหรู",
         Description = descriptionText,
-        DescriptionEmbedding = await GenerateEmbeddingAsync(descriptionText),
+        DescriptionEmbedding = await GenerateEmbeddingAsync(descriptionText, embeddingGenerator),
         Tags = new[] { "หรูหรา", "ใกล้สถานที่สำคัญ" }
     });
 
@@ -107,7 +173,7 @@ static List<Hotel> GetHotels()
         HotelId = hotelId++,
         HotelName = "โรงแรมราคาประหยัด",
         Description = descriptionText,
-        DescriptionEmbedding = await GenerateEmbeddingAsync(descriptionText),
+        DescriptionEmbedding = await GenerateEmbeddingAsync(descriptionText, embeddingGenerator),
         Tags = new[] { "ราคาประหยัด", "สะดวก" }
     });
 
@@ -117,7 +183,7 @@ static List<Hotel> GetHotels()
         HotelId = hotelId++,
         HotelName = "โรงแรมสำหรับครอบครัว",
         Description = descriptionText,
-        DescriptionEmbedding = await GenerateEmbeddingAsync(descriptionText),
+        DescriptionEmbedding = await GenerateEmbeddingAsync(descriptionText, embeddingGenerator),
         Tags = new[] { "ครอบครัว", "พื้นที่เด็กเล่น" }
     });
 
@@ -128,7 +194,7 @@ static List<Hotel> GetHotels()
         HotelId = hotelId++,
         HotelName = "โรงแรมบูติกดีไซน์",
         Description = descriptionText,
-        DescriptionEmbedding = await GenerateEmbeddingAsync(descriptionText),
+        DescriptionEmbedding = await GenerateEmbeddingAsync(descriptionText, embeddingGenerator),
         Tags = new[] { "ดีไซน์", "บูติก" }
     });
 
@@ -138,7 +204,7 @@ static List<Hotel> GetHotels()
         HotelId = hotelId++,
         HotelName = "โรงแรมใกล้สนามบิน",
         Description = descriptionText,
-        DescriptionEmbedding = await GenerateEmbeddingAsync(descriptionText),
+        DescriptionEmbedding = await GenerateEmbeddingAsync(descriptionText, embeddingGenerator),
         Tags = new[] { "สนามบิน", "สะดวก" }
     });
 
@@ -148,7 +214,7 @@ static List<Hotel> GetHotels()
         HotelId = hotelId++,
         HotelName = "โรงแรมในชนบท",
         Description = descriptionText,
-        DescriptionEmbedding = await GenerateEmbeddingAsync(descriptionText),
+        DescriptionEmbedding = await GenerateEmbeddingAsync(descriptionText, embeddingGenerator),
         Tags = new[] { "ธรรมชาติ", "สงบ" }
     });
 
@@ -158,7 +224,7 @@ static List<Hotel> GetHotels()
         HotelId = hotelId++,
         HotelName = "โรงแรมพรีเมียม",
         Description = descriptionText,
-        DescriptionEmbedding = await GenerateEmbeddingAsync(descriptionText),
+        DescriptionEmbedding = await GenerateEmbeddingAsync(descriptionText, embeddingGenerator),
         Tags = new[] { "พรีเมียม", "หรูหรา" }
     });
 
@@ -168,7 +234,7 @@ static List<Hotel> GetHotels()
         HotelId = hotelId++,
         HotelName = "โรงแรมสัมมนา",
         Description = descriptionText,
-        DescriptionEmbedding = await GenerateEmbeddingAsync(descriptionText),
+        DescriptionEmbedding = await GenerateEmbeddingAsync(descriptionText, embeddingGenerator),
         Tags = new[] { "สัมมนา", "ห้องประชุม" }
     });
 
@@ -179,7 +245,7 @@ static List<Hotel> GetHotels()
         HotelId = hotelId++,
         HotelName = "โรงแรมอาหารเช้าฟรี",
         Description = descriptionText,
-        DescriptionEmbedding = await GenerateEmbeddingAsync(descriptionText),
+        DescriptionEmbedding = await GenerateEmbeddingAsync(descriptionText, embeddingGenerator),
         Tags = new[] { "อาหารเช้าฟรี", "บริการดี" }
     });
 
@@ -189,7 +255,7 @@ static List<Hotel> GetHotels()
         HotelId = hotelId++,
         HotelName = "โรงแรมสะอาดและปลอดภัย",
         Description = descriptionText,
-        DescriptionEmbedding = await GenerateEmbeddingAsync(descriptionText),
+        DescriptionEmbedding = await GenerateEmbeddingAsync(descriptionText, embeddingGenerator),
         Tags = new[] { "สะอาด", "ปลอดภัย" }
     });
 
@@ -199,7 +265,7 @@ static List<Hotel> GetHotels()
         HotelId = hotelId++,
         HotelName = "โรงแรมที่รับสัตว์เลี้ยง",
         Description = descriptionText,
-        DescriptionEmbedding = await GenerateEmbeddingAsync(descriptionText),
+        DescriptionEmbedding = await GenerateEmbeddingAsync(descriptionText, embeddingGenerator),
         Tags = new[] { "สัตว์เลี้ยง", "ครอบครัว" }
     });
 
@@ -209,7 +275,7 @@ static List<Hotel> GetHotels()
         HotelId = hotelId++,
         HotelName = "โรงแรมผจญภัย",
         Description = descriptionText,
-        DescriptionEmbedding = await GenerateEmbeddingAsync(descriptionText),
+        DescriptionEmbedding = await GenerateEmbeddingAsync(descriptionText, embeddingGenerator),
         Tags = new[] { "กิจกรรมกลางแจ้ง", "ผจญภัย" }
     });
 
@@ -219,22 +285,25 @@ static List<Hotel> GetHotels()
         HotelId = hotelId++,
         HotelName = "โรงแรมเงียบสงบ",
         Description = descriptionText,
-        DescriptionEmbedding = await GenerateEmbeddingAsync(descriptionText),
+        DescriptionEmbedding = await GenerateEmbeddingAsync(descriptionText, embeddingGenerator),
         Tags = new[] { "สงบ", "ปลอดภัย" }
     });
 
     return hotels;
 }
 
-// Placeholder embedding generation method.
-static async Task<ReadOnlyMemory<float>> GenerateEmbeddingAsync(string textToVectorize)
+static async Task<ReadOnlyMemory<float>> GenerateEmbeddingAsync(string textToVectorize, ITextEmbeddingGenerationService embeddingGenerator)
 {
-    // your logic here
+    return await embeddingGenerator.GenerateEmbeddingAsync(textToVectorize);
 }
 
-static QdrantVectorStore CreateQdrantVectorStoreClient()
+static QdrantVectorStore CreateQdrantVectorStoreClient(bool useQdrantCloud, string qdrantHost, string qdrantApiKey)
 {
-    return new QdrantVectorStore(new QdrantClient("localhost"));
+    var qdrantClient = new QdrantClient(host: "localhost", port: 6334);
+    if (useQdrantCloud)
+        qdrantClient = new QdrantClient(host: qdrantHost, https: true, apiKey: qdrantApiKey);
+
+    return new QdrantVectorStore(qdrantClient);
 }
 
 static async Task<IVectorStoreRecordCollection<ulong, Hotel>> CreateQdrantCollection(QdrantVectorStore vectorStore)
@@ -277,14 +346,13 @@ static async Task TrytoGetAndDisplayaRecordWithoutVectorSearch(IVectorStoreRecor
     Console.WriteLine("- Name: " + hotel.HotelName);
     Console.WriteLine("- Tags: " + string.Join(", ", hotel.Tags));
     Console.WriteLine("- Description: " + hotel.Description);
-    Console.WriteLine("- Description embedding: " + string.Join(", ", hotel.DescriptionEmbedding?.ToArray()));
     Console.WriteLine();
 }
 
-static async Task PerformVectorSearch(IVectorStoreRecordCollection<ulong, Hotel> collection, string? userPrompt)
+static async Task PerformVectorSearch(IVectorStoreRecordCollection<ulong, Hotel> collection, string? userPrompt, ITextEmbeddingGenerationService embeddingGenerator)
 {
     // Generate a vector for your search text, using your chosen embedding generation implementation.
-    ReadOnlyMemory<float> searchVector = await GenerateEmbeddingAsync(userPrompt);
+    ReadOnlyMemory<float> searchVector = await GenerateEmbeddingAsync(userPrompt, embeddingGenerator);
 
     // Do the search.
     var searchResult = await collection.VectorizedSearchAsync(searchVector, new() { Top = 5, IncludeTotalCount = true });
@@ -297,6 +365,7 @@ static async Task PerformVectorSearch(IVectorStoreRecordCollection<ulong, Hotel>
         Console.WriteLine("Found hotel tags: " + string.Join(", ", record.Record.Tags));
         Console.WriteLine("Found hotel description: " + record.Record.Description);
         Console.WriteLine("Found record score: " + record.Score);
+        Console.WriteLine("");
     }
 }
 
@@ -319,9 +388,15 @@ public class Hotel
     [VectorStoreRecordData(IsFullTextSearchable = true)]
     public string Description { get; set; }
 
-    [VectorStoreRecordVector(Dimensions: 4, DistanceFunction.CosineDistance, IndexKind.Hnsw)]
+    [VectorStoreRecordVector(Dimensions: EmbeddingDimensions.OpenAIEmbeddingSize, DistanceFunction.CosineSimilarity)]
     public ReadOnlyMemory<float>? DescriptionEmbedding { get; set; }
 
     [VectorStoreRecordData(IsFilterable = true)]
     public string[] Tags { get; set; }
+}
+
+internal class EmbeddingDimensions
+{
+    public const int OllamaEmbeddingSize = 384;
+    public const int OpenAIEmbeddingSize = 1536;
 }
