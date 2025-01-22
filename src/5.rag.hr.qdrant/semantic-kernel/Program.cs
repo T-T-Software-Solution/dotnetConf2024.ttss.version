@@ -40,11 +40,11 @@ if(useAzureOpenAI)
         apiKey: azureAPIKey);
 }
 
-//var hotels = await GetHotels(embeddingGenerator);
+var hotels = await GetHotels(embeddingGenerator);
 
 QdrantVectorStore vectorStore = CreateQdrantVectorStoreClient(useQdrantCloud, qdrantHost, qdrantApiKey);
 var collection = await CreateQdrantCollection(vectorStore);
-//await UpsertPoints(collection, hotels);
+await UpsertPoints(collection, hotels);
 
 await TrytoGetAndDisplayaRecordWithoutVectorSearch(collection: collection, hotelId: 1);
 
@@ -388,7 +388,7 @@ public class Hotel
     [VectorStoreRecordData(IsFullTextSearchable = true)]
     public string Description { get; set; }
 
-    [VectorStoreRecordVector(Dimensions: EmbeddingDimensions.OpenAIEmbeddingSize, DistanceFunction.CosineSimilarity)]
+    [VectorStoreRecordVector(Dimensions: EmbeddingDimensions.OllamaBEGm3EmbeddingSize, DistanceFunction.CosineSimilarity)]
     public ReadOnlyMemory<float>? DescriptionEmbedding { get; set; }
 
     [VectorStoreRecordData(IsFilterable = true)]
@@ -397,6 +397,6 @@ public class Hotel
 
 internal class EmbeddingDimensions
 {
-    public const int OllamaEmbeddingSize = 384;
+    public const int OllamaBEGm3EmbeddingSize = 1024;
     public const int OpenAIEmbeddingSize = 1536;
 }
