@@ -33,13 +33,34 @@ QdrantVectorStore vectorStore = CreateQdrantVectorStoreClient(useQdrantCloud, qd
 var collection = await CreateQdrantCollection(vectorStore);
 await UpsertPoints(collection, embeddingGenerator, hotels);
 
-await TrytoGetAndDisplayaRecordWithoutVectorSearch(collection: collection, hotelId: 1);
-
+var isContinute = true;
 do
 {
-    string? userPrompt = WaitForUserPrompt();
-    await PerformVectorSearch(collection, userPrompt, embeddingGenerator);
-} while (true);
+    string? runningMode = WaitForUserCommand();
+    switch (runningMode)
+    {
+        case "1":
+            await TrytoGetAndDisplayaRecordWithoutVectorSearch(collection: collection);
+            break;
+        case "2":
+            await PerformVectorSearch(collection, embeddingGenerator);
+            break;
+        case "3":
+            Console.WriteLine("เดี๋ยวคิดอีกทีว่าทำไงดี: #3");
+            Console.WriteLine("");
+            break;
+        case "4":
+            Console.WriteLine("เดี๋ยวคิดอีกทีว่าทำไงดี: #4");
+            Console.WriteLine("");
+            break;
+        case "5":
+            isContinute = SetExitProgramMode();
+            return;
+        default:
+            Console.WriteLine("กรุณาเลือก Mode ใหม่อีกครั้ง");
+            break;
+    }
+} while (isContinute);
 
 static void ReadDataFromConfig(
     out bool useQdrantCloud, out string qdrantHost, out string qdrantApiKey,
@@ -110,18 +131,6 @@ static QdrantVectorStore CreateQdrantVectorStoreClient(bool useQdrantCloud, stri
 
 static async Task<IVectorStoreRecordCollection<ulong, HotelVectorStore>> CreateQdrantCollection(QdrantVectorStore vectorStore)
 {
-    var hotelDefinition = new VectorStoreRecordDefinition
-    {
-        Properties = new List<VectorStoreRecordProperty>
-        {
-            new VectorStoreRecordKeyProperty("HotelId", typeof(ulong)),
-            new VectorStoreRecordDataProperty("HotelName", typeof(string)) { IsFilterable = true },
-            new VectorStoreRecordDataProperty("Description", typeof(string)) { IsFullTextSearchable = true },
-            new VectorStoreRecordVectorProperty("DescriptionEmbedding", typeof(float)) { Dimensions = 4, DistanceFunction = DistanceFunction.CosineDistance, IndexKind = IndexKind.Hnsw },
-        }
-    };
-
-
     var collection = vectorStore.GetCollection<ulong, HotelVectorStore>("skhotels");
 
     // Create the collection if it doesn't exist yet.
@@ -146,14 +155,31 @@ static async Task UpsertPoints(IVectorStoreRecordCollection<ulong, HotelVectorSt
     }
 }
 
-static async Task TrytoGetAndDisplayaRecordWithoutVectorSearch(IVectorStoreRecordCollection<ulong, HotelVectorStore> collection, ulong hotelId)
+static string? WaitForUserCommand()
 {
+    // Wait for user prompt to search for hotels.
+    Console.WriteLine("เลือก Mode:");
+    Console.WriteLine("1. ค้นหาโรงแรมด้วย Id (พิมพ์เลข `1`)");
+    Console.WriteLine("2. ค้นหาโรงแรมด้วย Vector Search (พิมพ์เลข `2`)");
+    Console.WriteLine("3. ค้นหาโรงแรมด้วย Vector Search และ Text Filtering (พิมพ์เลข `3`)");
+    Console.WriteLine("4. ค้นหาโรงแรมด้วย Vector Search และ Full Text Search (พิมพ์เลข `4`)");
+    Console.WriteLine("5. ออกจากระบบ (พิมพ์เลข `5`)");
+    var userPrompt = Console.ReadLine();
+    return userPrompt;
+}
+
+static async Task TrytoGetAndDisplayaRecordWithoutVectorSearch(IVectorStoreRecordCollection<ulong, HotelVectorStore> collection)
+{
+    Console.WriteLine("กรุณาใส่ Id ของโรงแรมที่ต้องการค้นหา (เลือกเลข 1 - 50):");
+    string? hotelId = Console.ReadLine();
+    ulong hotelIdKey = ulong.Parse(hotelId);
+
     // Retrieve the upserted record.
-    var hotel = await collection.GetAsync(hotelId);
+    var hotel = await collection.GetAsync(hotelIdKey);
 
     //Display the hotel info
     Console.WriteLine();
-    Console.WriteLine(" Try to get and display a record without vector search: hotel id: " + hotelId);
+    Console.WriteLine(" Try to get and display a record without vector search: hotel id: " + hotelIdKey);
     Console.WriteLine("---------------------------------------------");
 
     if (hotel == null)
@@ -170,8 +196,11 @@ static async Task TrytoGetAndDisplayaRecordWithoutVectorSearch(IVectorStoreRecor
     Console.WriteLine();
 }
 
-static async Task PerformVectorSearch(IVectorStoreRecordCollection<ulong, HotelVectorStore> collection, string? userPrompt, ITextEmbeddingGenerationService embeddingGenerator)
+static async Task PerformVectorSearch(IVectorStoreRecordCollection<ulong, HotelVectorStore> collection, ITextEmbeddingGenerationService embeddingGenerator)
 {
+    Console.WriteLine("กรุณาระบุรายละเอียดโรงแรมที่ต้องการค้นหา:");
+    string? userPrompt = Console.ReadLine();
+
     // Generate a vector for your search text, using your chosen embedding generation implementation.
     ReadOnlyMemory<float> searchVector = await GenerateEmbeddingAsync(userPrompt, embeddingGenerator);
 
@@ -190,12 +219,13 @@ static async Task PerformVectorSearch(IVectorStoreRecordCollection<ulong, HotelV
     }
 }
 
-static string? WaitForUserPrompt()
+static bool SetExitProgramMode()
 {
-    // Wait for user prompt to search for hotels.
-    Console.WriteLine("กรอกข้อความที่ต้องการค้นหาเกี่ยวกับโรงแรม เช่น ราคาประหยัด, อยู่ในเมือง, หรูหรา, สระว่ายน้ำ: ");
-    var userPrompt = Console.ReadLine();
-    return userPrompt;
+    Console.WriteLine("ออกจากระบบ");
+    Console.WriteLine("");
+
+    bool isContinute = false;
+    return isContinute;
 }
 
 public class Hotel
