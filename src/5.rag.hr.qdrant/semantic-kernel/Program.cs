@@ -110,6 +110,18 @@ static QdrantVectorStore CreateQdrantVectorStoreClient(bool useQdrantCloud, stri
 
 static async Task<IVectorStoreRecordCollection<ulong, HotelVectorStore>> CreateQdrantCollection(QdrantVectorStore vectorStore)
 {
+    var hotelDefinition = new VectorStoreRecordDefinition
+    {
+        Properties = new List<VectorStoreRecordProperty>
+        {
+            new VectorStoreRecordKeyProperty("HotelId", typeof(ulong)),
+            new VectorStoreRecordDataProperty("HotelName", typeof(string)) { IsFilterable = true },
+            new VectorStoreRecordDataProperty("Description", typeof(string)) { IsFullTextSearchable = true },
+            new VectorStoreRecordVectorProperty("DescriptionEmbedding", typeof(float)) { Dimensions = 4, DistanceFunction = DistanceFunction.CosineDistance, IndexKind = IndexKind.Hnsw },
+        }
+    };
+
+
     var collection = vectorStore.GetCollection<ulong, HotelVectorStore>("skhotels");
 
     // Create the collection if it doesn't exist yet.
@@ -204,7 +216,7 @@ public class HotelVectorStore
     [VectorStoreRecordData(IsFullTextSearchable = true)]
     public string Description { get; set; }
 
-    [VectorStoreRecordVector(Dimensions: EmbeddingDimensions.OllamaBEGm3EmbeddingSize, DistanceFunction.CosineSimilarity)]
+    [VectorStoreRecordVector(Dimensions: EmbeddingDimensions.OllamaBEGm3EmbeddingSize, DistanceFunction.CosineSimilarity, IndexKind.Hnsw)]
     public ReadOnlyMemory<float>? DescriptionEmbedding { get; set; }
 
     [VectorStoreRecordData(IsFilterable = true)]
