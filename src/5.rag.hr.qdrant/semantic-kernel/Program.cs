@@ -46,12 +46,10 @@ do
             await PerformVectorSearch(collection, embeddingGenerator);
             break;
         case "3":
-            Console.WriteLine("เดี๋ยวคิดอีกทีว่าทำไงดี: #3");
-            Console.WriteLine("");
+            await PerformVectorSearchWithFiltering(collection, embeddingGenerator);
             break;
         case "4":
-            Console.WriteLine("เดี๋ยวคิดอีกทีว่าทำไงดี: #4");
-            Console.WriteLine("");
+            await PerformVectorSearchWithTagFiltering(collection, embeddingGenerator);
             break;
         case "5":
             isContinute = SetExitProgramMode();
@@ -61,6 +59,13 @@ do
             break;
     }
 } while (isContinute);
+
+static async Task<List<Hotel>> GetHotels()
+{
+    string jsonFilePath = "hotels.json";
+    string jsonString = await File.ReadAllTextAsync(jsonFilePath);
+    return JsonSerializer.Deserialize<List<Hotel>>(jsonString);
+}
 
 static void ReadDataFromConfig(
     out bool useQdrantCloud, out string qdrantHost, out string qdrantApiKey,
@@ -108,13 +113,6 @@ static ITextEmbeddingGenerationService GetEmbeddingGenerator(
     return embeddingGenerator;
 }
 
-static async Task<List<Hotel>> GetHotels()
-{
-    string jsonFilePath = "hotels.json";
-    string jsonString = await File.ReadAllTextAsync(jsonFilePath);
-    return JsonSerializer.Deserialize<List<Hotel>>(jsonString);
-}
-
 static async Task<ReadOnlyMemory<float>> GenerateEmbeddingAsync(string textToVectorize, ITextEmbeddingGenerationService embeddingGenerator)
 {
     return await embeddingGenerator.GenerateEmbeddingAsync(textToVectorize);
@@ -139,7 +137,7 @@ static async Task<IVectorStoreRecordCollection<ulong, HotelVectorStore>> CreateQ
     return collection;
 }
 
-static async Task UpsertPoints(IVectorStoreRecordCollection<ulong, HotelVectorStore> collection, ITextEmbeddingGenerationService embeddingGenerator , List<Hotel> hotels)
+static async Task UpsertPoints(IVectorStoreRecordCollection<ulong, HotelVectorStore> collection, ITextEmbeddingGenerationService embeddingGenerator, List<Hotel> hotels)
 {
     // Upsert all hotels to the collection
     foreach (var hotel in hotels)
@@ -159,12 +157,16 @@ static string? WaitForUserCommand()
 {
     // Wait for user prompt to search for hotels.
     Console.WriteLine("เลือก Mode:");
+    Console.WriteLine("--------------------------------------------------------------");
     Console.WriteLine("1. ค้นหาโรงแรมด้วย Id (พิมพ์เลข `1`)");
     Console.WriteLine("2. ค้นหาโรงแรมด้วย Vector Search (พิมพ์เลข `2`)");
-    Console.WriteLine("3. ค้นหาโรงแรมด้วย Vector Search และ Text Filtering (พิมพ์เลข `3`)");
-    Console.WriteLine("4. ค้นหาโรงแรมด้วย Vector Search และ Full Text Search (พิมพ์เลข `4`)");
+    Console.WriteLine("3. ค้นหาโรงแรมด้วย Vector Search และ Text Equal Search (พิมพ์เลข `3`)");
+    Console.WriteLine("4. ค้นหาโรงแรมด้วย Vector Search และ Any Tag Search (พิมพ์เลข `4`)");
     Console.WriteLine("5. ออกจากระบบ (พิมพ์เลข `5`)");
+
     var userPrompt = Console.ReadLine();
+    Console.WriteLine("");
+
     return userPrompt;
 }
 
@@ -196,16 +198,9 @@ static async Task TrytoGetAndDisplayaRecordWithoutVectorSearch(IVectorStoreRecor
     Console.WriteLine();
 }
 
-static async Task PerformVectorSearch(IVectorStoreRecordCollection<ulong, HotelVectorStore> collection, ITextEmbeddingGenerationService embeddingGenerator)
+static async Task DisplayVectorSearchResult(VectorSearchResults<HotelVectorStore> searchResult)
 {
-    Console.WriteLine("กรุณาระบุรายละเอียดโรงแรมที่ต้องการค้นหา:");
-    string? userPrompt = Console.ReadLine();
-
-    // Generate a vector for your search text, using your chosen embedding generation implementation.
-    ReadOnlyMemory<float> searchVector = await GenerateEmbeddingAsync(userPrompt, embeddingGenerator);
-
-    // Do the search.
-    var searchResult = await collection.VectorizedSearchAsync(searchVector, new() { Top = 5, IncludeTotalCount = true });
+    Console.WriteLine();
 
     // Inspect the returned HotelInVectorStore.
     await foreach (var record in searchResult.Results)
@@ -216,7 +211,87 @@ static async Task PerformVectorSearch(IVectorStoreRecordCollection<ulong, HotelV
         Console.WriteLine("Found hotel description: " + record.Record.Description);
         Console.WriteLine("Found record score: " + record.Score);
         Console.WriteLine("");
-    }
+    };
+
+    Console.WriteLine();
+}
+
+static async Task PerformVectorSearch(IVectorStoreRecordCollection<ulong, HotelVectorStore> collection, ITextEmbeddingGenerationService embeddingGenerator)
+{
+    Console.WriteLine("กรุณาระบุรายละเอียดโรงแรมที่ต้องการค้นหา:");
+    string? userPrompt = Console.ReadLine();
+
+    // Generate a vector for your search text, using your chosen embedding generation implementation.
+    ReadOnlyMemory<float> searchVector = await GenerateEmbeddingAsync(userPrompt, embeddingGenerator);
+
+    // Do the search.
+    var searchResult = await collection.VectorizedSearchAsync(searchVector, new() { Top = 3, IncludeTotalCount = true });
+    await DisplayVectorSearchResult(searchResult);
+}
+
+static async Task PerformVectorSearchWithFiltering(IVectorStoreRecordCollection<ulong, HotelVectorStore> collection, ITextEmbeddingGenerationService embeddingGenerator)
+{
+    Console.WriteLine("กรุณาระบุรายละเอียดโรงแรมที่ต้องการค้นหา:");
+    string? userPrompt = Console.ReadLine();
+
+    // Generate a vector for your search text, using your chosen embedding generation implementation.
+    ReadOnlyMemory<float> searchVector = await GenerateEmbeddingAsync(userPrompt, embeddingGenerator);
+
+    // Do the search.
+    var searchResult = await collection.VectorizedSearchAsync(
+        searchVector, 
+        new() { Top = 3, IncludeTotalCount = true });
+
+    Console.WriteLine("แสดงผลโรงแรมที่ค้นหาด้วย Vector Search:");
+    Console.WriteLine("----------------------------------");
+    await DisplayVectorSearchResult(searchResult);
+
+    Console.WriteLine("ระบุชื่อเต็มของโรงแรม:");
+    var hotelNameFilter = Console.ReadLine();
+
+    var filter = new VectorSearchFilter()
+        .EqualTo(nameof(HotelVectorStore.HotelName), hotelNameFilter);
+
+
+    var searchWithFilterResult = await collection.VectorizedSearchAsync(
+        searchVector, 
+        new() {Top = 3,Filter = filter, IncludeTotalCount = true });
+
+    Console.WriteLine("แสดงผลโรงแรมที่ค้นหาด้วย Vector Search และ Filter Search:");
+    Console.WriteLine("----------------------------------");
+    await DisplayVectorSearchResult(searchWithFilterResult);
+}
+
+static async Task PerformVectorSearchWithTagFiltering(IVectorStoreRecordCollection<ulong, HotelVectorStore> collection, ITextEmbeddingGenerationService embeddingGenerator)
+{
+    Console.WriteLine("กรุณาระบุรายละเอียดโรงแรมที่ต้องการค้นหา:");
+    string? userPrompt = Console.ReadLine();
+
+    // Generate a vector for your search text, using your chosen embedding generation implementation.
+    ReadOnlyMemory<float> searchVector = await GenerateEmbeddingAsync(userPrompt, embeddingGenerator);
+
+    // Do the search.
+    var searchResult = await collection.VectorizedSearchAsync(
+        searchVector, 
+        new() { Top = 3, IncludeTotalCount = true });
+
+    Console.WriteLine("แสดงผลโรงแรมที่ค้นหาด้วย Vector Search:");
+    Console.WriteLine("----------------------------------");
+    await DisplayVectorSearchResult(searchResult);
+
+    Console.WriteLine("ระบุ Tag:");
+    var tagFilter = Console.ReadLine();
+
+    var filter = new VectorSearchFilter()
+        .AnyTagEqualTo(nameof(HotelVectorStore.Tags), tagFilter);
+        
+    var searchWithFilterResult = await collection.VectorizedSearchAsync(
+        searchVector, 
+        new() {Top = 3, Filter = filter, IncludeTotalCount = true });
+
+    Console.WriteLine("แสดงผลโรงแรมที่ค้นหาด้วย Vector Search และ Filter Search:");
+    Console.WriteLine("----------------------------------");
+    await DisplayVectorSearchResult(searchWithFilterResult);
 }
 
 static bool SetExitProgramMode()
@@ -235,6 +310,7 @@ public class Hotel
     public string Description { get; set; }
     public List<string> Tags { get; set; }
 }
+
 public class HotelVectorStore
 {
     [VectorStoreRecordKey]
@@ -258,3 +334,4 @@ internal class EmbeddingDimensions
     public const int OllamaBEGm3EmbeddingSize = 1024;
     public const int OpenAIEmbeddingSize = 1536;
 }
+
