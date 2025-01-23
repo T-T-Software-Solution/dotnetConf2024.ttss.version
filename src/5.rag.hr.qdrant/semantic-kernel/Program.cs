@@ -52,6 +52,9 @@ do
             await PerformVectorSearchWithTagFiltering(collection, embeddingGenerator);
             break;
         case "5":
+            await PerformVectorSearchWithFullTextSearch(collection, embeddingGenerator);
+            break;
+        case "6":
             isContinute = SetExitProgramMode();
             return;
         default:
@@ -97,8 +100,8 @@ static ITextEmbeddingGenerationService GetEmbeddingGenerator(
     string ollamaTextEmbeddingModel, string ollamaAPIEndpoint)
 {
     var ollamaClient = new OllamaApiClient(
-        uriString: ollamaAPIEndpoint,    // E.g. "http://localhost:11434" if Ollama has been started in docker as described above.
-        defaultModel: ollamaTextEmbeddingModel // E.g. "mxbai-embed-large" if mxbai-embed-large was downloaded as described above.
+        uriString: ollamaAPIEndpoint,    
+        defaultModel: ollamaTextEmbeddingModel 
     );
     ITextEmbeddingGenerationService embeddingGenerator = ollamaClient.AsTextEmbeddingGenerationService();
 
@@ -162,7 +165,8 @@ static string? WaitForUserCommand()
     Console.WriteLine("2. ค้นหาโรงแรมด้วย Vector Search (พิมพ์เลข `2`)");
     Console.WriteLine("3. ค้นหาโรงแรมด้วย Vector Search และ Text Equal Search (พิมพ์เลข `3`)");
     Console.WriteLine("4. ค้นหาโรงแรมด้วย Vector Search และ Any Tag Search (พิมพ์เลข `4`)");
-    Console.WriteLine("5. ออกจากระบบ (พิมพ์เลข `5`)");
+    Console.WriteLine("5. ค้นหาโรงแรมด้วย Vector Search และ Full Text Search (พิมพ์เลข `5`)");
+    Console.WriteLine("6. ออกจากระบบ (พิมพ์เลข `6`)");
 
     var userPrompt = Console.ReadLine();
     Console.WriteLine("");
@@ -220,6 +224,7 @@ static async Task PerformVectorSearch(IVectorStoreRecordCollection<ulong, HotelV
 {
     Console.WriteLine("กรุณาระบุรายละเอียดโรงแรมที่ต้องการค้นหา:");
     string? userPrompt = Console.ReadLine();
+    Console.WriteLine("");
 
     // Generate a vector for your search text, using your chosen embedding generation implementation.
     ReadOnlyMemory<float> searchVector = await GenerateEmbeddingAsync(userPrompt, embeddingGenerator);
@@ -233,6 +238,7 @@ static async Task PerformVectorSearchWithFiltering(IVectorStoreRecordCollection<
 {
     Console.WriteLine("กรุณาระบุรายละเอียดโรงแรมที่ต้องการค้นหา:");
     string? userPrompt = Console.ReadLine();
+    Console.WriteLine("");
 
     // Generate a vector for your search text, using your chosen embedding generation implementation.
     ReadOnlyMemory<float> searchVector = await GenerateEmbeddingAsync(userPrompt, embeddingGenerator);
@@ -246,8 +252,9 @@ static async Task PerformVectorSearchWithFiltering(IVectorStoreRecordCollection<
     Console.WriteLine("----------------------------------");
     await DisplayVectorSearchResult(searchResult);
 
-    Console.WriteLine("ระบุชื่อเต็มของโรงแรม:");
+    Console.WriteLine("ระบุชื่อเต็มของ Hotel:");
     var hotelNameFilter = Console.ReadLine();
+    Console.WriteLine("");
 
     var filter = new VectorSearchFilter()
         .EqualTo(nameof(HotelVectorStore.HotelName), hotelNameFilter);
@@ -257,7 +264,7 @@ static async Task PerformVectorSearchWithFiltering(IVectorStoreRecordCollection<
         searchVector, 
         new() {Top = 3,Filter = filter, IncludeTotalCount = true });
 
-    Console.WriteLine("แสดงผลโรงแรมที่ค้นหาด้วย Vector Search และ Filter Search:");
+    Console.WriteLine("แสดงผลโรงแรมที่ค้นหาด้วย Vector Search และ Text Equal Search:");
     Console.WriteLine("----------------------------------");
     await DisplayVectorSearchResult(searchWithFilterResult);
 }
@@ -266,6 +273,7 @@ static async Task PerformVectorSearchWithTagFiltering(IVectorStoreRecordCollecti
 {
     Console.WriteLine("กรุณาระบุรายละเอียดโรงแรมที่ต้องการค้นหา:");
     string? userPrompt = Console.ReadLine();
+    Console.WriteLine("");
 
     // Generate a vector for your search text, using your chosen embedding generation implementation.
     ReadOnlyMemory<float> searchVector = await GenerateEmbeddingAsync(userPrompt, embeddingGenerator);
@@ -279,19 +287,27 @@ static async Task PerformVectorSearchWithTagFiltering(IVectorStoreRecordCollecti
     Console.WriteLine("----------------------------------");
     await DisplayVectorSearchResult(searchResult);
 
-    Console.WriteLine("ระบุ Tag:");
+    Console.WriteLine("ระบุชื่อเต็มของ Tag:");
     var tagFilter = Console.ReadLine();
-
+    Console.WriteLine("");
+    
     var filter = new VectorSearchFilter()
         .AnyTagEqualTo(nameof(HotelVectorStore.Tags), tagFilter);
-        
+
     var searchWithFilterResult = await collection.VectorizedSearchAsync(
         searchVector, 
         new() {Top = 3, Filter = filter, IncludeTotalCount = true });
 
-    Console.WriteLine("แสดงผลโรงแรมที่ค้นหาด้วย Vector Search และ Filter Search:");
+    Console.WriteLine("แสดงผลโรงแรมที่ค้นหาด้วย Vector Search และ Any Tag Search:");
     Console.WriteLine("----------------------------------");
     await DisplayVectorSearchResult(searchWithFilterResult);
+}
+
+static async Task PerformVectorSearchWithFullTextSearch(IVectorStoreRecordCollection<ulong, HotelVectorStore> collection, ITextEmbeddingGenerationService embeddingGenerator)
+{
+    Console.WriteLine("");
+    Console.WriteLine("ยังทำไม่ได้จ้า มุแง้ (T_____T)");
+    Console.WriteLine("");
 }
 
 static bool SetExitProgramMode()
