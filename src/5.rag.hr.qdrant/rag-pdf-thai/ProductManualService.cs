@@ -53,7 +53,7 @@
                 new VectorStoreRecordKeyProperty(nameof(ManualChunk.ChunkId), typeof(ulong)),
                 new VectorStoreRecordDataProperty(nameof(ManualChunk.EmployeeId), typeof(int)) { IsFilterable = true },
                 new VectorStoreRecordDataProperty(nameof(ManualChunk.PageNumber), typeof(int)) { IsFilterable = true },
-                new VectorStoreRecordVectorProperty(nameof(ManualChunk.Embedding), typeof(ReadOnlyMemory<float>)) { Dimensions = _dimensions, DistanceFunction = DistanceFunction.CosineDistance },
+                new VectorStoreRecordVectorProperty(nameof(ManualChunk.Embedding), typeof(ReadOnlyMemory<float>)) { Dimensions = EmbeddingDimensions.OllamaEmbeddingSize, DistanceFunction = DistanceFunction.CosineSimilarity, IndexKind = IndexKind.Hnsw },
                 new VectorStoreRecordDataProperty(nameof(ManualChunk.Text), typeof(string)) { IsFilterable = true },
             }
         };
@@ -62,6 +62,6 @@
 
 internal class EmbeddingDimensions
 {
-    public const int OllamaEmbeddingSize = 384;
+    public const int OllamaEmbeddingSize = 1024;
     public const int OpenAIEmbeddingSize = 1536;
 }

@@ -20,6 +20,7 @@ IEmbeddingGenerator<string, Embedding<float>> embeddingGenerator;
 
 // Create chat client and embedding generator 
 // by selecting the appropriate implementation - Azure OpenAI or Ollama
+
 if(useAzureOpenAI)
 {
     var azureAI = Utils.CreateAzureOpenAIClient(azureAPIEndpoint, azureAPIKey);

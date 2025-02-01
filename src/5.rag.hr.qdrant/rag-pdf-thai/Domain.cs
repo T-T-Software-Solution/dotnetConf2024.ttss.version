@@ -13,7 +13,7 @@ public class ManualChunk
     [VectorStoreRecordData(IsFullTextSearchable = true)]
     public string Text { get; set; }
 
-    [VectorStoreRecordVector(Dimensions: 1536, DistanceFunction.CosineSimilarity, IndexKind.Hnsw)]
+    [VectorStoreRecordVector(Dimensions: 1024, DistanceFunction.CosineSimilarity, IndexKind.Hnsw)]
     public ReadOnlyMemory<float> Embedding { get; set; }
 }
 
