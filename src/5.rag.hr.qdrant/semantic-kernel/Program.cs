@@ -145,6 +145,8 @@ static async Task UpsertPoints(IVectorStoreRecordCollection<ulong, HotelVectorSt
     // Upsert all hotels to the collection
     foreach (var hotel in hotels)
     {
+        Console.WriteLine("Upserting hotel: " + hotel.HotelId + " - " + hotel.HotelName);
+
         await collection.UpsertAsync(new HotelVectorStore
         {
             HotelId = hotel.HotelId,
