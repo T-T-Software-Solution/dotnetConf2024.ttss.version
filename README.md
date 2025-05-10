@@ -33,6 +33,9 @@
 - [Qdrant — Vector Database](https://medium.com/t-t-software-solution/qdrant-vector-database-1e01b68207a9)
   - [Source Code](./src/5.rag.hr.qdrant/)
 
+- [Deploy a web API with AI-powered to Linux container in Azure App Service](https://medium.com/t-t-software-solution/global-azure-2025-thailand-16b34ffe6791)
+  - [Source Code](https://github.com/T-T-Software-Solution/Global-Azure-2025-Thailand)
+
 # ผู้เขียน - คุณนคร
 
 - [บันทึกการศึกษา Generative AI และ Vector Database](https://medium.com/t-t-software-solution/%E0%B8%9A%E0%B8%B1%E0%B8%99%E0%B8%97%E0%B8%B6%E0%B8%81%E0%B8%81%E0%B8%B2%E0%B8%A3%E0%B8%A8%E0%B8%B6%E0%B8%81%E0%B8%A9%E0%B8%B2-generative-ai-%E0%B9%81%E0%B8%A5%E0%B8%B0-vector-database-6166f34f2dc4)
